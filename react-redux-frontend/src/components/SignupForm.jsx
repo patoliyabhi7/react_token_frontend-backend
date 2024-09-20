@@ -52,6 +52,8 @@ const SignupForm = () => {
           alignItems: 'center',
           maxWidth: 400,
           mx: 'auto',
+          p: 3, boxShadow: 3
+
         }}
       >
         <Typography variant="h4" gutterBottom>

@@ -8,18 +8,8 @@ function Home() {
   return (
     <Box sx={{ mt: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Welcome to Your Profile
+        Home
       </Typography>
-      {user ? (
-        <Box>
-          <Typography variant="h6">Name: {user.name}</Typography>
-          <Typography variant="h6">Email: {user.email}</Typography>
-          <Typography variant="h6">Username: {user.username}</Typography>
-          <Typography variant="h6">Gender: {user.gender}</Typography>
-        </Box>
-      ) : (
-        <Typography variant="h6">Error fetching user data or No user data available.</Typography>
-      )}
     </Box>
   );
 }

@@ -88,12 +88,22 @@ export const login = (credentials) => async (dispatch) => {
 };
 
 export const fetchCurrentUser = () => async (dispatch) => {
-
     try {
         const response = await apiClient.get('/getCurrentUser');
         dispatch(loginSuccess(response.data.user));
     } catch (error) {
         const errorMessage = error.response ? error.response.data : 'Network Error';
         dispatch(loginFailure(errorMessage));
+    }
+};
+
+export const updatePassword = (credentials) => async (dispatch) => {
+    try {
+        dispatch(updatePasswordStart());
+        const response = await apiClient.post('/updatePassword', credentials);
+        dispatch(updatePasswordSuccess());
+        return Promise.resolve(response.data);
+    } catch (error) {
+        
     }
 };

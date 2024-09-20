@@ -19,7 +19,7 @@ const signToken = (id, expiresIn) => {
 
 const createSendToken = async (user, statusCode, res) => {
     // const token = signToken(user._id);
-    const token = signToken(user._id, '7s');
+    const token = signToken(user._id, '7h');
     const refreshToken = signToken(user._id, '7d');
 
     // Store the refresh token in the database
@@ -76,7 +76,7 @@ exports.refreshToken = async (req, res) => {
         }
 
         // Generate a new access token
-        const newAccessToken = signToken(user._id, '7s');
+        const newAccessToken = signToken(user._id, '7h');
         const newRefreshToken = signToken(user._id, '7d');
 
         // Store the refresh token in the database

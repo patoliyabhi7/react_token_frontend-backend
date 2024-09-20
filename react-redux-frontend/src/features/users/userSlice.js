@@ -40,7 +40,13 @@ const userSlice = createSlice({
             state.error = null;
             state.status = 'idle';
             state.isAuthenticated = false; 
-        }
+        },
+        updatePasswordStart(state){
+            state.status = 'loading';
+        },
+        updatePasswordSuccess(state){
+            state.status = 'succeeded';
+        },
     }
 });
 
