@@ -136,21 +136,32 @@ exports.verifyJWT = async (req, res, next) => {
 };
 
 exports.register = catchAsync(async (req, res, next) => {
-    const newUser = await User.create({
-        name: req.body.name,
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword,
-        gender: req.body.gender,
-    })
-    res.status(200).json({
-        statusMessage: 'Signup successful',
-        statusCode: 200,
-        response: {
-            user: newUser
+try {
+        const newUser = await User.create({
+            name: req.body.name,
+            email: req.body.email,
+            username: req.body.username,
+            password: req.body.password,
+            confirmPassword: req.body.confirmPassword,
+            gender: req.body.gender,
+        })
+        if(!newUser) {
+            return res.status(400).json({
+                statusMessage: 'Error while registering user',
+                statusCode: 400
+            })
         }
-    })
+        createSendToken(newUser, 201, res);
+        // res.status(200).json({
+        //     statusMessage: 'Signup successful',
+        //     statusCode: 200,
+        //     response: {
+        //         user: newUser
+        //     }
+        // })
+} catch (error) {
+    console.log(error)
+}
 })
 
 exports.login = catchAsync(async (req, res, next) => {

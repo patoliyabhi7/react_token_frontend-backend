@@ -25,30 +25,33 @@ function LoginForm() {
         }
     };
     return (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
-            <Typography variant="h4" gutterBottom>Login</Typography>
-            {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-            <TextField
-                fullWidth
-                label="Email"
-                margin="normal"
-                {...register('email', { required: 'Email is required' })}
-                error={!!errors.email}
-                helperText={errors.email ? errors.email.message : ''}
-            />
-            <TextField
-                fullWidth
-                label="Password"
-                type="password"
-                margin="normal"
-                {...register('password', { required: 'Password is required' })}
-                error={!!errors.password}
-                helperText={errors.password ? errors.password.message : ''}
-            />
-            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                Login
-            </Button>
-        </Box>
+        <>
+        {localStorage.removeItem('jwt')}
+            <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+                <Typography variant="h4" gutterBottom>Login</Typography>
+                {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+                <TextField
+                    fullWidth
+                    label="Email"
+                    margin="normal"
+                    {...register('email', { required: 'Email is required' })}
+                    error={!!errors.email}
+                    helperText={errors.email ? errors.email.message : ''}
+                />
+                <TextField
+                    fullWidth
+                    label="Password"
+                    type="password"
+                    margin="normal"
+                    {...register('password', { required: 'Password is required' })}
+                    error={!!errors.password}
+                    helperText={errors.password ? errors.password.message : ''}
+                />
+                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+                    Login
+                </Button>
+            </Box>
+        </>
     );
 };
 

@@ -1,10 +1,10 @@
-// src/features/user/userSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     user: null,
     status: 'idle',
     error: null,
+    isAuthenticated: false, 
 };
 
 const userSlice = createSlice({
@@ -28,7 +28,8 @@ const userSlice = createSlice({
         },
         signupSuccess(state, action) {
             state.status = 'succeeded';
-            state.user = action.payload;
+            state.user = action.payload.user;
+            state.isAuthenticated = true;
         },
         signupFailure(state, action) {
             state.status = 'failed';
@@ -38,7 +39,7 @@ const userSlice = createSlice({
             state.user = null;
             state.error = null;
             state.status = 'idle';
-            state.isAuthenticated = false;
+            state.isAuthenticated = false; 
         }
     }
 });

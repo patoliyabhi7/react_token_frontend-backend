@@ -49,16 +49,27 @@ apiClient.interceptors.response.use(
 export const signup = (userData) => async (dispatch) => {
     dispatch(signupStart());
     try {
-        const response = await axios.post(`${API_BASE_URL}/register`, userData);
-        dispatch(signupSuccess(response.data));
-        return Promise.resolve(response.data); // Return a resolved promise with the data
+        const response = await axios.post(`${API_BASE_URL}/register`, userData, { withCredentials: true });
+        const { token } = response.data;
+
+        // Store the JWT token in local storage
+        localStorage.setItem('jwt', token);
+
+        // Fetch the current user data
+        const userResponse = await apiClient.get('/getCurrentUser');
+        const user = userResponse.data.user;
+
+        // Update the Redux store with user data
+        dispatch(signupSuccess({ user, token }));
+
+        return Promise.resolve(response.data);
     } catch (error) {
         const errorMessage = error.response ? error.response.data : 'Network Error';
         dispatch(signupFailure(errorMessage));
-        return Promise.reject(errorMessage); // Return a rejected promise with the error
+        return Promise.reject(errorMessage);
     }
 };
-// src/apiServices.js
+
 export const login = (credentials) => async (dispatch) => {
     dispatch(loginStart());
     try {
@@ -77,7 +88,6 @@ export const login = (credentials) => async (dispatch) => {
 };
 
 export const fetchCurrentUser = () => async (dispatch) => {
-
 
     try {
         const response = await apiClient.get('/getCurrentUser');
