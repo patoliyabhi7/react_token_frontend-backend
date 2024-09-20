@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import axios from 'axios';
 import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure } from './features/users/userSlice';
 
@@ -30,7 +31,6 @@ apiClient.interceptors.response.use(
                 // Request a new access token using the refresh token
                 const response = await axios.post(`${API_BASE_URL}/refreshToken`, {}, { withCredentials: true });
                 const { accessToken } = response.data;
-                // Update the access token in local storage
                 localStorage.setItem('jwt', accessToken);
 
                 // Update the Authorization header and retry the original request
@@ -77,6 +77,8 @@ export const login = (credentials) => async (dispatch) => {
 };
 
 export const fetchCurrentUser = () => async (dispatch) => {
+
+
     try {
         const response = await apiClient.get('/getCurrentUser');
         dispatch(loginSuccess(response.data.user));

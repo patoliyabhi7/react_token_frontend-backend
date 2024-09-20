@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import SignupForm from "./components/SignupForm";
 import LoginForm from "./components/LoginForm.jsx";
 import Navigation from "./components/Navigation";
@@ -8,10 +8,33 @@ import { Container, Box } from "@mui/material";
 import "./App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrentUser } from "./apiServices";
+import {jwtDecode} from "jwt-decode";
+
+const AuthWrapper = () => {
+  const token = localStorage.getItem("jwt");
+
+  const isTokenExpired = (token) => {
+    if (!token) return true;
+
+    try {
+      // const { exp } = jwtDecode(token);
+      // if (!exp) return true;
+
+      // const currentTime = Date.now() / 1000; // Convert to seconds
+      // return exp < currentTime;
+    } catch (error) {
+      console.error("Invalid token", error);
+      return true;
+    }
+  };
+
+  const isExpired = isTokenExpired(token);
+
+  return isExpired ? <Navigate to="/" replace /> : <Outlet />;
+};
 
 function App() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
@@ -28,7 +51,10 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginForm />} />
             <Route path="/signup" element={<SignupForm />} />
-            <Route path="/home" element={<Home />} />
+            {/* <Route path="/home" element={<Home />} /> */}
+            <Route element={<AuthWrapper />}>
+              <Route path="/home" element={<Home />} />
+            </Route>
           </Routes>
         </Box>
       </Container>
