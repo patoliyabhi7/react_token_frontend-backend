@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import {
   TextField,
@@ -42,7 +42,18 @@ const SignupForm = () => {
   return (
     <>
       {localStorage.removeItem("jwt")}
-      <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        sx={{
+          mt: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          maxWidth: 400,
+          mx: 'auto',
+        }}
+      >
         <Typography variant="h4" gutterBottom>
           Signup
         </Typography>

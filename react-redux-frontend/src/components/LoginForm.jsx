@@ -27,7 +27,14 @@ function LoginForm() {
     return (
         <>
         {localStorage.removeItem('jwt')}
-            <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+            <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{
+                    mt: 3,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    maxWidth: 400,
+                    mx: 'auto',
+                    }}>
                 <Typography variant="h4" gutterBottom>Login</Typography>
                 {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
                 <TextField

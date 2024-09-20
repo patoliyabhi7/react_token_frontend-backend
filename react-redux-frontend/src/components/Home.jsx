@@ -18,7 +18,7 @@ function Home() {
           <Typography variant="h6">Gender: {user.gender}</Typography>
         </Box>
       ) : (
-        <Typography variant="h6">No user data available.</Typography>
+        <Typography variant="h6">Error fetching user data or No user data available.</Typography>
       )}
     </Box>
   );
