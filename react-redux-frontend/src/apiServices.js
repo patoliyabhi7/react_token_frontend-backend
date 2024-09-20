@@ -29,9 +29,7 @@ apiClient.interceptors.response.use(
             try {
                 // Request a new access token using the refresh token
                 const response = await axios.post(`${API_BASE_URL}/refreshToken`, {}, { withCredentials: true });
-                console.log("api services after") 
                 const { accessToken } = response.data;
-                
                 // Update the access token in local storage
                 localStorage.setItem('jwt', accessToken);
 

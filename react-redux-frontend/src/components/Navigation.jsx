@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +15,6 @@ function Navigation() {
     dispatch(logout());
     navigate("/");
   };
-
   const isActive = (path) => {
     return location.pathname === path;
   };
