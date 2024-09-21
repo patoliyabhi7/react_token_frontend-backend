@@ -136,7 +136,7 @@ exports.verifyJWT = async (req, res, next) => {
 };
 
 exports.register = catchAsync(async (req, res, next) => {
-try {
+    try {
         const newUser = await User.create({
             name: req.body.name,
             email: req.body.email,
@@ -145,7 +145,7 @@ try {
             confirmPassword: req.body.confirmPassword,
             gender: req.body.gender,
         })
-        if(!newUser) {
+        if (!newUser) {
             return res.status(400).json({
                 statusMessage: 'Error while registering user',
                 statusCode: 400
@@ -159,9 +159,9 @@ try {
         //         user: newUser
         //     }
         // })
-} catch (error) {
-    console.log(error)
-}
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -206,45 +206,163 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
         res.status(500).json({ message: 'Server error' });
     }
 })
+// via otp
+
+// exports.forgotPassword = catchAsync(async (req, res, next) => {
+//     try {
+//         if (!req.body.email) {
+//             return res.status(400).json({
+//                 status: 'Failed',
+//                 statusCode: 400,
+//                 statusMessage: 'Please enter your email'
+//             })
+//         }
+//         const user = await User.findOne({ email: req.body.email });
+//         if (!user) {
+//             return res.status(404).json({
+//                 status: 'Failed',
+//                 statusCode: 404,
+//                 statusMessage: 'User not found with this email id'
+//             })
+//         }
+//         const otp = Math.floor(1000 + Math.random() * 9000);
+//         res.cookie("otp", { email: req.body.email, otp }, { maxAge: 300000 });
+
+
+//         const message = `Reset your password OTP: ${otp} \n This OTP is valid for 5 minutes Only`;
+//         try {
+//             await sendEmail({
+//                 email: user.email,
+//                 subject: 'Password Reset OTP',
+//                 message
+//             })
+//             res.status(200).json({
+//                 status: 'Email sent successfully',
+//                 statusCode: 200,
+//                 statusMessage: 'Password reset OTP sent to your email'
+//             })
+//         } catch (error) {
+//             res.clearCookie('otp');
+//             res.status(400).json({
+//                 statusCode: 400,
+//                 status: 'Error while sending OTP',
+//                 statusMessage: error.message
+//             })
+
+//         }
+//     } catch (error) {
+//         res.status(400).json({
+//             statusCode: 400,
+//             status: 'Error while resetting password',
+//             statusMessage: error.message
+//         })
+//     }
+// })
+
+// exports.verifyOTP = catchAsync(async (req, res, next) => {
+//     try {
+//         const enteredOtp = req.body.otp;
+//         const otpData = req.cookies.otp;
+
+//         if (!otpData) {
+//             return res.status(400).json({
+//                 statusCode: 400,
+//                 statusMessage: 'OTP expired or not found'
+//             });
+//         }
+
+//         const { email, otp } = otpData; // otpData is already an object
+
+//         const user = await User.findOne({ email: req.body.email });
+//         if (!user) {
+//             return res.status(400).json({
+//                 statusMessage: 'User not found with this email',
+//                 statusCode: 400
+//             });
+//         }
+
+//         if (!enteredOtp) {
+//             return res.status(400).json({
+//                 statusMessage: 'Please enter the OTP',
+//                 statusCode: 400
+//             });
+//         }
+
+//         if (otpData.email !== req.body.email) {
+//             return res.status(400).json({
+//                 statusMessage: 'Email does not match, unauthorized request',
+//                 statusCode: 400
+//             });
+//         }
+
+//         if (otp !== enteredOtp || email !== req.body.email) {
+//             return res.status(400).json({
+//                 statusMessage: 'OTP Incorrect or expired',
+//                 statusCode: 400
+//             });
+//         }
+
+//         user.password = req.body.password;
+//         user.confirmPassword = req.body.confirmPassword;
+//         await user.save();
+//         res.clearCookie('otp');
+
+//         createSendToken(user, 200, res);
+//     } catch (error) {
+//         res.status(400).json({
+//             status: 'Error while verifying OTP',
+//             statusCode: 400,
+//             statusMessage: error.message
+//         });
+//     }
+// });
+
+// via link using token
+// const resetURL = `${req.protocol}://${req.get('host')}/api/v1/employee/resetPassword/`
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
     try {
-        if (!req.body.email) {
+        const {email} = req.body.email;
+        console.log(email)
+        if (!email) {
             return res.status(400).json({
                 status: 'Failed',
                 statusCode: 400,
                 statusMessage: 'Please enter your email'
             })
         }
-        const user = await User.findOne({ email: req.body.email });
+        const user = await User.findOne({ email: email });
         if (!user) {
             return res.status(404).json({
                 status: 'Failed',
                 statusCode: 404,
-                statusMessage: 'User not found with this email id'
+                statusMessage: 'No user found with this email'
             })
         }
-        const otp = Math.floor(1000 + Math.random() * 9000);
-        res.cookie("otp", { email: req.body.email, otp }, { maxAge: 300000 });
 
+        const resetToken = signToken(user._id, '5m');
+        user.resetToken = resetToken;
+        await user.save();
 
-        const message = `Reset your password OTP: ${otp} \n This OTP is valid for 5 minutes Only`;
+        const resetURL = `${req.protocol}://${req.get('host')}/api/v1/employee/resetPassword/${resetToken}`;
+
+        const message = `Forgot your password? \n\nTo reset it, please visit the following link and follow the instructions to update your password: ${resetURL}.\n\nIf you did not request a password reset, please disregard this email.`;
         try {
             await sendEmail({
                 email: user.email,
-                subject: 'Password Reset OTP',
+                subject: 'Your password reset token (valid for 5 min)',
                 message
             })
             res.status(200).json({
-                status: 'Email sent successfully',
+                status: 'success',
                 statusCode: 200,
-                statusMessage: 'Password reset OTP sent to your email'
+                statusMessage: 'Password reset link sent to your email'
             })
         } catch (error) {
             res.clearCookie('otp');
             res.status(400).json({
                 statusCode: 400,
-                status: 'Error while sending OTP',
+                status: 'Error while sending password reset link',
                 statusMessage: error.message
             })
 
@@ -258,10 +376,20 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     }
 })
 
-exports.verifyOTP = catchAsync(async (req, res, next) => {
+exports.resetPassword = catchAsync(async (req, res, next) => {
     try {
-        const enteredOtp = req.body.otp;
-        const otpData = req.cookies.otp;
+        const resetToken = req.params.token;
+        const { password, confirmPassword } = req.body;
+
+        if (!resetToken) {
+            return res.status(400).json({
+                statusMessage: 'Invalid token',
+                statusCode: 400
+            });
+        }
+
+        const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+        
 
         if (!otpData) {
             return res.status(400).json({
@@ -309,7 +437,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
         createSendToken(user, 200, res);
     } catch (error) {
         res.status(400).json({
-            status: 'Error while verifying OTP',
+            status: 'Error while resetting password',
             statusCode: 400,
             statusMessage: error.message
         });

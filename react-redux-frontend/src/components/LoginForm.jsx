@@ -18,26 +18,26 @@ function LoginForm() {
                 navigate('/home');
             }
         } catch (error) {
-            // Check if error.response exists and extract the message
             console.error('An error occurred:', error.statusMessage);
             const errorMessage = error.statusMessage ? error.statusMessage : 'An unexpected error occurred';
-            setErrorMessage(errorMessage); // Set the error message as a string
+            setErrorMessage(errorMessage);
         }
     };
+
     return (
         <>
-        {localStorage.removeItem('jwt')}
+            {localStorage.removeItem('jwt')}
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{
-                    mt: 3,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    maxWidth: 400,
-                    mx: 'auto',
-                    p: 3, boxShadow: 3
-                    }}>
-                <Typography variant="h4" gutterBottom>Login</Typography>
+                mt: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start', // Align items to the start (left)
+                maxWidth: 400,
+                mx: 'auto',
+                p: 3, boxShadow: 3
+            }}>
+                <Typography variant="h4" gutterBottom sx={{alignSelf: 'center'}}>Login</Typography>
                 {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
                 <TextField
                     fullWidth
@@ -56,13 +56,19 @@ function LoginForm() {
                     error={!!errors.password}
                     helperText={errors.password ? errors.password.message : ''}
                 />
-                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, alignSelf: 'flex-start' }}>
                     Login
                 </Button>
+                <Button
+                    color="secondary"
+                    sx={{ mt: 1 }}
+                    onClick={() => navigate('/forgot-password')}
+                >
+                    Forgot Password?
+                </Button>
             </Box>
-            
         </>
     );
-};
+}
 
 export default LoginForm;

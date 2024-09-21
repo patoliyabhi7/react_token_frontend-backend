@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         select: false, // Do not return this field by default in queries
     },
+    passwordResetToken:{
+        type: String,
+        select: false
+    },
 })
 
 userSchema.pre('save', async function(next){

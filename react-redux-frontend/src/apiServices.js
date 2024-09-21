@@ -109,3 +109,12 @@ export const updatePassword = (credentials) => async (dispatch) => {
         return Promise.reject(errorMessage);
     }
 };
+
+export const forgotPassword = (email) =>async(dispatch) => {
+    try {
+        const response = await apiClient.post('/forgotPassword', { email });
+        return Promise.resolve(response.data);
+    } catch (error) {
+        return Promise.reject(error.response.data);
+    }
+}

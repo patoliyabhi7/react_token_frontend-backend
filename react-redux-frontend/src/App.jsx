@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrentUser } from "./apiServices";
 import {jwtDecode} from "jwt-decode";
 import Profile from "./components/Profile.jsx";
+import ForgotPassword from "./components/ForgotPassword.jsx";
 
 const AuthWrapper = () => {
   const token = localStorage.getItem("jwt");
@@ -52,7 +53,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginForm />} />
             <Route path="/signup" element={<SignupForm />} />
-            {/* <Route path="/home" element={<Home />} /> */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route element={<AuthWrapper />}>
               <Route path="/home" element={<Home />} />
               <Route path="/profile" element={<Profile />} />

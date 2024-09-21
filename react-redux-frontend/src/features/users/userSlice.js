@@ -4,7 +4,9 @@ const initialState = {
     user: null,
     status: 'idle',
     error: null,
-    isAuthenticated: false, 
+    isAuthenticated: false,
+    passwordResetStatus: 'idle', // Added for password reset
+    passwordResetError: null,    // Added for password reset
 };
 
 const userSlice = createSlice({
@@ -39,17 +41,30 @@ const userSlice = createSlice({
             state.user = null;
             state.error = null;
             state.status = 'idle';
-            state.isAuthenticated = false; 
+            state.isAuthenticated = false;
         },
-        updatePasswordStart(state){
+        updatePasswordStart(state) {
             state.status = 'loading';
         },
-        updatePasswordSuccess(state){
+        updatePasswordSuccess(state) {
             state.status = 'succeeded';
+        },
+        passwordResetStart(state) {
+            state.loading = true;
+            state.success = false;
+            state.error = null;
+        },
+        passwordResetSuccess(state) {
+            state.loading = false;
+            state.success = true;
+        },
+        passwordResetError(state, action) {
+            state.loading = false;
+            state.error = action.payload;
         },
     }
 });
 
-export const { loginStart, loginSuccess, loginFailure, signupStart, signupSuccess, signupFailure, logout, updatePasswordStart, updatePasswordSuccess } = userSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, signupStart, signupSuccess, signupFailure, logout, updatePasswordStart, updatePasswordSuccess, passwordResetStart, passwordResetSuccess, passwordResetErro } = userSlice.actions;
 
 export default userSlice.reducer;
