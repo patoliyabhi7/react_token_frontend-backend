@@ -324,22 +324,28 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
                 status: 'Failed',
                 statusCode: 400,
                 statusMessage: 'User not found or not logged in'
-            })
+            });
         }
-        if (!req.body.password || !req.body.confirmPassword || !req.body.currentPassword) {
+        const { currentPassword, password, confirmPassword } = req.body;
+        if (!currentPassword || !password || !confirmPassword) {
             return res.status(400).json({
-                statusMessage: 'Please enter current, new and confirm password',
+                statusMessage: 'Please enter current, new, and confirm password',
                 statusCode: 400
-            })
+            });
         }
-        if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
+        if (!(await user.correctPassword(currentPassword, user.password))) {
             return res.status(400).json({
                 statusMessage: 'Current password is incorrect',
                 statusCode: 400
-            })
+            });
         }
-        user.password = req.body.password;
-        user.confirmPassword = req.body.confirmPassword;
+        if (password !== confirmPassword) {
+            return res.status(400).json({
+                statusMessage: 'New password and confirm password do not match',
+                statusCode: 400
+            });
+        }
+        user.password = password;
         await user.save();
         createSendToken(user, 200, res);
     } catch (error) {
@@ -347,9 +353,9 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
             status: 'Error while updating password',
             statusMessage: error.message,
             statusCode: 400
-        })
+        });
     }
-})
+});
 
 exports.viewProfile = catchAsync(async (req, res, next) => {
     res.status(200).json({

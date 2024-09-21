@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure } from './features/users/userSlice';
+import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure, updatePasswordStart, updatePasswordSuccess } from './features/users/userSlice';
 
 const API_BASE_URL = 'http://localhost:8001/api/v1/users';
 
@@ -104,6 +104,8 @@ export const updatePassword = (credentials) => async (dispatch) => {
         dispatch(updatePasswordSuccess());
         return Promise.resolve(response.data);
     } catch (error) {
-        
+        const errorMessage = error.response ? error.response.data.statusMessage : 'Network Error';
+        dispatch(loginFailure(errorMessage)); // Assuming you have a failure action for updatePassword
+        return Promise.reject(errorMessage);
     }
 };

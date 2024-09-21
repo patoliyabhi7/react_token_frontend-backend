@@ -1,40 +1,50 @@
 import React, { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Typography, Avatar, Card, CardContent, Grid, Button, TextField, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Card,
+  CardContent,
+  Grid,
+  Button,
+  TextField,
+  Alert,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { updatePassword } from "../apiServices";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Profile() {
   const user = useSelector((state) => state.user.user);
   const navigate = useNavigate();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [passwords, setPasswords] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const {register, handleSubmit, formState: { errors },} = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
 
   const onSubmit = async (data) => {
     try {
-
       const result = await dispatch(updatePassword(data));
-      if(result.status === "success") {
-        toast.success('Always at the bottom.', {
-          position: "bottom-right"
-        })
+      console.log(result);
+      if (result.status === "success") {
+        toast.success("Password updated successfully.", {
+          position: "bottom-right",
+        });
+        setErrorMessage("");
+        setShowPasswordForm(false);
       }
     } catch (error) {
-      console.error("An error occurred:", error.statusMessage);
-      const errorMessage = error.statusMessage
-        ? error.statusMessage
-        : "An unexpected error occurred";
+      console.error("An error occurred:", error);
+      const errorMessage = error ? error : "An unexpected error occurred";
       setErrorMessage(errorMessage);
+      console.log(error);
     }
   };
 
@@ -47,31 +57,10 @@ function Profile() {
   const handleChangePassword = () => {
     setShowPasswordForm(!showPasswordForm);
     if (!showPasswordForm) {
-      // Scroll to the password form
       setTimeout(() => {
         passwordFormRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100); // Delay to ensure the form is rendered
+      }, 100);
     }
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswords({
-      ...passwords,
-      [name]: value,
-    });
-  };
-
-  const handleSubmitPasswordChange = () => {
-    // Implement password change logic here
-    console.log("Password change submitted:", passwords);
-    // Reset form and hide it
-    setPasswords({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-    // setShowPasswordForm(false);
   };
 
   return (
@@ -147,6 +136,7 @@ function Profile() {
       >
         {showPasswordForm && (
           <Box
+            component="form"
             onSubmit={handleSubmit(onSubmit)}
             sx={{ maxWidth: 600, width: "100%", p: 3, boxShadow: 3 }}
           >
@@ -155,37 +145,56 @@ function Profile() {
             </Typography>
             {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
             <TextField
-                fullWidth
-                label="Current Password"
-                margin="normal"
-                {...register('current password', { required: 'Current password is required' })}
-                error={!!errors.currentPassword}
-                helperText={errors.currentPassword ? errors.currentPassword.message : ''}
-            />
-            
-            <TextField
-                fullWidth
-                label="Password"
-                margin="normal"
-                {...register('password', { required: 'Password is required' })}
-                error={!!errors.password}
-                helperText={errors.password ? errors.password.message : ''}
+              fullWidth
+              label="Current Password"
+              type="password"
+              margin="normal"
+              {...register("currentPassword", {
+                required: "Current password is required",
+              })}
+              error={!!errors.currentPassword}
+              helperText={
+                errors.currentPassword ? errors.currentPassword.message : ""
+              }
             />
             <TextField
-                fullWidth
-                label="Confirm Password"
-                margin="normal"
-                {...register('confirmPassword', { required: 'Confirm Password is required' })}
-                error={!!errors.confirmPassword}
-                helperText={errors.confirmPassword ? errors.confirmPassword.message : ''}
+              fullWidth
+              label="New Password"
+              type="password"
+              margin="normal"
+              {...register("password", {
+                required: "New password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+                pattern: {
+                  value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/,
+                  message: "Password must contain letters and numbers",
+                },
+              })}
+              error={!!errors.password}
+              helperText={errors.password ? errors.password.message : ""}
             />
-           
+
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              margin="normal"
+              type="password"
+              {...register("confirmPassword", {
+                required: "Confirm password is required",
+              })}
+              error={!!errors.confirmPassword}
+              helperText={
+                errors.confirmPassword ? errors.confirmPassword.message : ""
+              }
+            />
             <Button
               type="submit"
               variant="contained"
               color="primary"
               sx={{ mt: 2 }}
-              onClick={onSubmit}
             >
               Submit
             </Button>
