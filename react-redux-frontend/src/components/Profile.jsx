@@ -25,6 +25,7 @@ function Profile() {
     register,
     handleSubmit,
     formState: { errors },
+    reset, // Import the reset function
   } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ function Profile() {
         });
         setErrorMessage("");
         setShowPasswordForm(false);
+        reset();
       }
     } catch (error) {
       console.error("An error occurred:", error);
