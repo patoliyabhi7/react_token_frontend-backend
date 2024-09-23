@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { TextField, Button, Box, Typography, Alert } from '@mui/material';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../apiServices';
 
@@ -10,6 +10,11 @@ function LoginForm() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState('');
+    const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+
+    if (isAuthenticated) {
+        navigate('/home');
+    }
 
     const onSubmit = async (data) => {
         try {
@@ -26,7 +31,7 @@ function LoginForm() {
 
     return (
         <>
-            {localStorage.removeItem('jwt')}
+            {/* {localStorage.removeItem('jwt')} */}
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{
                 mt: 3,

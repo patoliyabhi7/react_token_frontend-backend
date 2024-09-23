@@ -2,7 +2,6 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import CssBaseline from "@mui/material/CssBaseline";
-import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
@@ -11,14 +10,26 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import HomeIcon from "@mui/icons-material/Home";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { Link, useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
 
 export default function Sidebar() {
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
+  const activeStyle = {
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    fontWeight: "bold",
+    color: "#1976d2",
+  };
+
   return (
-    <Box sx={{ display: "flex" }}>     
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
       <Drawer
         sx={{
           width: drawerWidth,
@@ -26,37 +37,54 @@ export default function Sidebar() {
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
+            backgroundColor: "#f5f5f5",
+            boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
           },
         }}
         variant="permanent"
         anchor="left"
       >
-        <Toolbar />
+        <Toolbar sx={{}}>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: "center" }}>
+            Dashboard
+          </Typography>
+        </Toolbar>
         <Divider />
         <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/home"
+              sx={{
+                ...isActive("/home") ? activeStyle : {},
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: isActive("/home") ? "#1976d2" : "inherit" }}>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Home" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/profile"
+              sx={{
+                ...isActive("/profile") ? activeStyle : {},
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: isActive("/profile") ? "#1976d2" : "inherit" }}>
+                <AccountCircleIcon />
+              </ListItemIcon>
+              <ListItemText primary="Profile" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
     </Box>

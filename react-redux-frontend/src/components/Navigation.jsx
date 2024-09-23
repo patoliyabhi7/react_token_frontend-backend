@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { AppBar, Toolbar, Button, Box, Avatar, Menu, MenuItem } from "@mui/material";
+import { AppBar, Toolbar, Button, Box, Avatar, Menu, MenuItem, Divider } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "./../features/users/userSlice";
 
@@ -42,7 +42,7 @@ function Navigation() {
     <div>
        <AppBar
         position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+        // sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
       >
         <Toolbar>
           {!isAuthenticated && (
@@ -67,14 +67,7 @@ function Navigation() {
           )}
           {isAuthenticated && (
             <>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/home"
-                style={isActive("/home") ? activeStyle : {}}
-              >
-                Home
-              </Button>
+             
               <Box sx={{ flexGrow: 1 }} />
               <Avatar
                 sx={{ cursor: 'pointer' }}
@@ -87,8 +80,8 @@ function Navigation() {
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
               >
-                <MenuItem onClick={() => { handleMenuClose(); navigate('/profile'); }}>Profile</MenuItem>
                 <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>Settings</MenuItem>
+                <Divider/>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>

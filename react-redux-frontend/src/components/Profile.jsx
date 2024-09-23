@@ -25,7 +25,7 @@ function Profile() {
     register,
     handleSubmit,
     formState: { errors },
-    reset, // Import the reset function
+    reset,
   } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
@@ -33,7 +33,6 @@ function Profile() {
   const onSubmit = async (data) => {
     try {
       const result = await dispatch(updatePassword(data));
-      console.log(result);
       if (result.status === "success") {
         toast.success("Password updated successfully.", {
           position: "bottom-right",
@@ -43,17 +42,15 @@ function Profile() {
         reset();
       }
     } catch (error) {
-      console.error("An error occurred:", error);
       const errorMessage = error ? error : "An unexpected error occurred";
       setErrorMessage(errorMessage);
-      console.log(error);
     }
   };
 
   const passwordFormRef = useRef(null);
 
   const handleEditProfile = () => {
-    navigate("/edit-profile");
+    // navigate("/edit-profile");
   };
 
   const handleChangePassword = () => {
@@ -72,7 +69,7 @@ function Profile() {
         <Card sx={{ maxWidth: 600, width: "100%", p: 3, boxShadow: 3 }}>
           <CardContent>
             <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-              <Avatar sx={{ width: 80, height: 80, mr: 3 }}>
+              <Avatar sx={{ width: 80, height: 80, mr: 3, bgcolor: "#1976d2" }}>
                 {user?.name?.charAt(0)}
               </Avatar>
               <Typography variant="h4" component="div">
@@ -82,25 +79,25 @@ function Profile() {
             {user ? (
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="h6" color="textSecondary">
+                  <Typography variant="subtitle1" color="textSecondary">
                     Name:
                   </Typography>
                   <Typography variant="body1">{user.name}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="h6" color="textSecondary">
+                  <Typography variant="subtitle1" color="textSecondary">
                     Email:
                   </Typography>
                   <Typography variant="body1">{user.email}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="h6" color="textSecondary">
+                  <Typography variant="subtitle1" color="textSecondary">
                     Username:
                   </Typography>
                   <Typography variant="body1">{user.username}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="h6" color="textSecondary">
+                  <Typography variant="subtitle1" color="textSecondary">
                     Gender:
                   </Typography>
                   <Typography variant="body1">{user.gender}</Typography>
@@ -132,11 +129,11 @@ function Profile() {
           </CardContent>
         </Card>
       </Box>
-      <Box
-        sx={{ mt: 5, display: "flex", justifyContent: "center" }}
-        ref={passwordFormRef}
-      >
-        {showPasswordForm && (
+      {showPasswordForm && (
+        <Box
+          sx={{ mt: 5, display: "flex", justifyContent: "center" }}
+          ref={passwordFormRef}
+        >
           <Box
             component="form"
             onSubmit={handleSubmit(onSubmit)}
@@ -178,7 +175,6 @@ function Profile() {
               error={!!errors.password}
               helperText={errors.password ? errors.password.message : ""}
             />
-
             <TextField
               fullWidth
               label="Confirm Password"
@@ -201,16 +197,10 @@ function Profile() {
               Submit
             </Button>
           </Box>
-        )}
-      </Box>
+        </Box>
+      )}
     </>
   );
 }
 
 export default Profile;
-
-// toaster notification
-// const notify = () => toast("Wow so easy!");
-
-// <button onClick={notify}>Notify!</button>
-// <ToastContainer />

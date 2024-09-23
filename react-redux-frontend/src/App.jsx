@@ -6,19 +6,18 @@ import {
   Outlet,
   Navigate,
 } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Container, Box } from "@mui/material";
 import SignupForm from "./components/SignupForm";
 import LoginForm from "./components/LoginForm.jsx";
 import Navigation from "./components/Navigation";
 import Home from "./components/Home";
-import { Container, Box } from "@mui/material";
-import "./App.css";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCurrentUser } from "./apiServices";
-import { jwtDecode } from "jwt-decode";
 import Profile from "./components/Profile.jsx";
 import ForgotPassword from "./components/ForgotPassword.jsx";
 import ResetPassword from "./components/ResetPassword.jsx";
 import Sidebar from "./components/Sidebar.jsx";
+import { fetchCurrentUser } from "./apiServices";
+import "./App.css";
 
 const AuthWrapper = () => {
   const token = localStorage.getItem("jwt");
@@ -44,6 +43,8 @@ const AuthWrapper = () => {
 
 function App() {
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (token) {
@@ -55,7 +56,7 @@ function App() {
     <Router>
       <Box sx={{ display: "flex" }}>
         <Navigation />
-        <Sidebar />
+        {isAuthenticated && <Sidebar />}
         <Container sx={{ flexGrow: 1, padding: 3 }}>
           <Box sx={{ my: 4 }}>
             <Routes>
