@@ -12,6 +12,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import HomeIcon from "@mui/icons-material/Home";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AddTaskIcon from '@mui/icons-material/AddTask';
 import { Link, useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
@@ -68,6 +69,7 @@ export default function Sidebar() {
               <ListItemText primary="Home" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -83,6 +85,23 @@ export default function Sidebar() {
                 <AccountCircleIcon />
               </ListItemIcon>
               <ListItemText primary="Profile" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/add-task"
+              sx={{
+                ...isActive("/add-task") ? activeStyle : {},
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: isActive("/add-task") ? "#1976d2" : "inherit" }}>
+                <AddTaskIcon />
+              </ListItemIcon>
+              <ListItemText primary="Add Task" />
             </ListItemButton>
           </ListItem>
         </List>

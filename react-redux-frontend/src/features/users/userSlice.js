@@ -62,9 +62,25 @@ const userSlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         },
+        addTaskStart(state) {
+            state.status = 'loading';
+        },
+        addTaskSuccess(state, action) {
+            state.status = 'succeeded';
+            state.tasks.push(action.payload);
+        },
+        addTaskFailure(state, action) {
+            state.status = 'failed';
+            state.error = action.payload;
+        },
     }
 });
 
-export const { loginStart, loginSuccess, loginFailure, signupStart, signupSuccess, signupFailure, logout, updatePasswordStart, updatePasswordSuccess, passwordResetStart, passwordResetSuccess, passwordResetError } = userSlice.actions;
+export const { loginStart, loginSuccess, loginFailure,
+    signupStart, signupSuccess, signupFailure,
+    logout, updatePasswordStart, updatePasswordSuccess,
+    passwordResetStart, passwordResetSuccess, passwordResetError,
+    addTaskStart, addTaskSuccess, addTaskFailure
+} = userSlice.actions;
 
 export default userSlice.reducer;

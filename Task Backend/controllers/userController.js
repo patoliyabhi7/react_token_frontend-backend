@@ -345,7 +345,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 
 // via otp
-
 // exports.forgotPassword = catchAsync(async (req, res, next) => {
 //     try {
 //         if (!req.body.email) {

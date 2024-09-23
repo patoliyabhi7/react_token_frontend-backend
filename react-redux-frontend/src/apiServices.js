@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure, updatePasswordStart, updatePasswordSuccess, passwordResetStart, passwordResetSuccess, passwordResetError } from './features/users/userSlice';
+import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure, updatePasswordStart, updatePasswordSuccess, passwordResetStart, passwordResetSuccess, passwordResetError, addTaskStart, addTaskSuccess, addTaskFailure } from './features/users/userSlice';
 
 const API_BASE_URL = 'http://localhost:8001/api/v1/users';
 
@@ -138,4 +138,16 @@ export const jsonData = async () => {
     } catch (error) {
         return Promise.reject(error.response.data);
     }
- }
+}
+
+export const addTask = (task) => async (dispatch) => {
+    try {
+        dispatch(addTaskStart());
+        const response = await apiClient.post('/tasks', task);
+        dispatch(addTaskSuccess(response.data));
+        return Promise.resolve(response.data);
+    } catch (error) {
+        dispatch(addTaskFailure(error.response.data, error.response.status));
+        return Promise.reject(error.response.data);
+    }
+}
