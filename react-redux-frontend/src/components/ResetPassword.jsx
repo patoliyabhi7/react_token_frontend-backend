@@ -1,28 +1,34 @@
 import React, { useState } from "react";
-import { forgotPassword } from "../apiServices";
+import { resetPassword } from "../apiServices";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography, Alert } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useParams } from "react-router-dom";
 
-function ForgotPassword() {
+function ResetPassword() {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+  const {token} = useParams();
+
+  const password = watch("password");
 
   const onSubmit = async (data) => {
     try {
-      setIsLoading(true); // Disable the button
-      const result = await dispatch(forgotPassword(data));
+      setIsLoading(true); 
+      const result = await dispatch(resetPassword(token, data));
+      console.log('result :>> ', result);
       if (result.status === "success") {
-        toast.success("Password Reset Link Sent Please check your mail", {
+        toast.success("Password Reset Success", {
           position: "bottom-right",
         });
         setErrorMessage("");
@@ -39,6 +45,7 @@ function ForgotPassword() {
     }
   };
 
+  
   return (
     <Box
       component="form"
@@ -56,21 +63,45 @@ function ForgotPassword() {
     >
       <ToastContainer />
       <Typography variant="h4" gutterBottom sx={{ alignSelf: "center" }}>
-        Forgot Password?
+        Reset Password
       </Typography>
-
       <Typography variant="body1" gutterBottom>
-        Enter your email and we'll send you a link to reset your password
+        Enter new password and confirm password
       </Typography>
       <TextField
         fullWidth
-        label="Email"
+        label="Password"
+        type="password"
         margin="normal"
-        {...register("email", { required: "Email is required" })}
-        error={!!errors.email}
-        helperText={errors.email ? errors.email.message : ""}
+        {...register("password", {
+          required: "Password is required",
+          minLength: {
+            value: 6,
+            message: "Password must be at least 6 characters",
+          },
+          pattern: {
+            value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/,
+            message: "Password must contain letters and numbers",
+          },
+        })}
+        error={!!errors.password}
+        helperText={errors.password ? errors.password.message : ""}
       />
-
+      <TextField
+        fullWidth
+        label="Confirm Password"
+        type="password"
+        margin="normal"
+        {...register("confirmPassword", {
+          required: "Confirm Password is required",
+          validate: (value) =>
+            value === password || "Password & Confirm Password do not match",
+        })}
+        error={!!errors.confirmPassword}
+        helperText={
+          errors.confirmPassword ? errors.confirmPassword.message : ""
+        }
+      />
       <Button
         type="submit"
         variant="contained"
@@ -85,4 +116,4 @@ function ForgotPassword() {
   );
 }
 
-export default ForgotPassword;
+export default ResetPassword;

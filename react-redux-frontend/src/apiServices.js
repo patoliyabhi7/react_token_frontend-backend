@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure, updatePasswordStart, updatePasswordSuccess } from './features/users/userSlice';
+import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure, updatePasswordStart, updatePasswordSuccess, passwordResetStart, passwordResetSuccess, passwordResetError } from './features/users/userSlice';
 
 const API_BASE_URL = 'http://localhost:8001/api/v1/users';
 
@@ -110,11 +110,23 @@ export const updatePassword = (credentials) => async (dispatch) => {
     }
 };
 
-export const forgotPassword = (email) =>async(dispatch) => {
+export const forgotPassword = (email) => async (dispatch) => {
     try {
         const response = await apiClient.post('/forgotPassword', { email });
         return Promise.resolve(response.data);
     } catch (error) {
+        return Promise.reject(error.response.data);
+    }
+}
+
+export const resetPassword = (token, data) => async (dispatch) => {
+    try {
+        dispatch(passwordResetStart());
+        const response = await apiClient.post(`/resetPassword/${token}`, data);
+        dispatch(passwordResetSuccess());
+        return Promise.resolve(response.data);
+    } catch (error) {
+        dispatch(passwordResetError(error.response.data));
         return Promise.reject(error.response.data);
     }
 }

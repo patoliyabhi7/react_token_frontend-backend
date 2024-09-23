@@ -4,6 +4,8 @@ import { AppBar, Toolbar, Button, Box, Avatar, Menu, MenuItem } from "@mui/mater
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "./../features/users/userSlice";
 
+const drawerWidth = 240;
+
 function Navigation() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,7 +40,10 @@ function Navigation() {
 
   return (
     <div>
-      <AppBar position="static">
+       <AppBar
+        position="fixed"
+        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+      >
         <Toolbar>
           {!isAuthenticated && (
             <>

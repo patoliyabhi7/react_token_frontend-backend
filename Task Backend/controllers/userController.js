@@ -206,6 +206,144 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
         res.status(500).json({ message: 'Server error' });
     }
 })
+
+
+
+// via link using token
+// const resetURL = `${req.protocol}://${req.get('host')}/api/v1/employee/resetPassword/`
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+    try {
+        const { email } = req.body.email;
+        console.log(email)
+        if (!email) {
+            return res.status(400).json({
+                status: 'Failed',
+                statusCode: 400,
+                statusMessage: 'Please enter your email'
+            })
+        }
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res.status(404).json({
+                status: 'Failed',
+                statusCode: 404,
+                statusMessage: 'No user found with this email'
+            })
+        }
+
+        const passwordResetToken = signToken(user._id, '5m');
+        user.passwordResetToken = passwordResetToken;
+        await user.save();
+
+        const resetURL = `http://localhost:5173/reset-password/${passwordResetToken}`;
+
+        // const message = `Forgot your password? \n\nTo reset it, please visit the following link and follow the instructions to update your password: ${resetURL}.\n\nIf you did not request a password reset, please disregard this email.`;
+        const message = `
+        <p>Forgot your password?</p>
+        <p>To reset it, please click the button below and follow the instructions to update your password:</p>
+        <a href="${resetURL}" style="
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          color: #ffffff;
+          background-color: #007bff;
+          text-decoration: none;
+          border-radius: 5px;
+        ">Reset Password</a>
+        <p>If you did not request a password reset, please disregard this email.</p>
+      `;
+        try {
+            await sendEmail({
+                email: user.email,
+                subject: 'Your password reset token (valid for 5 min)',
+                html: message
+            })
+            res.status(200).json({
+                status: 'success',
+                statusCode: 200,
+                statusMessage: 'Password reset link sent to your email'
+            })
+        } catch (error) {
+            res.clearCookie('otp');
+            res.status(400).json({
+                statusCode: 400,
+                status: 'Error while sending password reset link',
+                statusMessage: error.message
+            })
+
+        }
+    } catch (error) {
+        res.status(400).json({
+            statusCode: 400,
+            status: 'Error while resetting password',
+            statusMessage: error.message
+        })
+    }
+})
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+    try {
+        const passResetToken = req.params.token;
+        const { password, confirmPassword } = req.body;
+        const decoded = jwt.verify(passResetToken, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id).select('+passwordResetToken');
+        if (!user) {
+            return res.status(400).json({
+                status: 'Failed',
+                statusCode: 400,
+                statusMessage: 'User not found'
+            });
+        }
+        if (user.passwordResetToken !== passResetToken) {
+            return res.status(400).json({
+                status: 'Failed',
+                statusCode: 400,
+                statusMessage: 'Token is invalid/expired'
+            });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({
+                status: 'Failed',
+                statusCode: 400,
+                statusMessage: 'Passwords do not match'
+            });
+        }
+
+        user.password = password;
+        user.confirmPassword = confirmPassword;
+        user.passwordResetToken = undefined;
+        await user.save();
+        return res.status(200).json({
+            status: 'success',
+            statusCode: 200,
+            statusMessage: 'Password reset successfull'
+        });
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                status: 'Failed',
+                statusCode: 401,
+                statusMessage: 'Token has expired'
+            });
+        }
+        else if (error.name === 'JsonWebTokenError') {
+            return res.status(400).json({
+                status: 'Failed',
+                statusCode: 400,
+                statusMessage: 'Invalid token'
+            });
+        }
+        res.status(400).json({
+            status: 'Error',
+            statusCode: 400,
+            statusMessage: error.message
+        });
+    }
+});
+
+
 // via otp
 
 // exports.forgotPassword = catchAsync(async (req, res, next) => {
@@ -317,132 +455,6 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
 //     }
 // });
 
-// via link using token
-// const resetURL = `${req.protocol}://${req.get('host')}/api/v1/employee/resetPassword/`
-
-exports.forgotPassword = catchAsync(async (req, res, next) => {
-    try {
-        const {email} = req.body.email;
-        console.log(email)
-        if (!email) {
-            return res.status(400).json({
-                status: 'Failed',
-                statusCode: 400,
-                statusMessage: 'Please enter your email'
-            })
-        }
-        const user = await User.findOne({ email: email });
-        if (!user) {
-            return res.status(404).json({
-                status: 'Failed',
-                statusCode: 404,
-                statusMessage: 'No user found with this email'
-            })
-        }
-
-        const resetToken = signToken(user._id, '5m');
-        user.resetToken = resetToken;
-        await user.save();
-
-        const resetURL = `${req.protocol}://${req.get('host')}/api/v1/employee/resetPassword/${resetToken}`;
-
-        const message = `Forgot your password? \n\nTo reset it, please visit the following link and follow the instructions to update your password: ${resetURL}.\n\nIf you did not request a password reset, please disregard this email.`;
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Your password reset token (valid for 5 min)',
-                message
-            })
-            res.status(200).json({
-                status: 'success',
-                statusCode: 200,
-                statusMessage: 'Password reset link sent to your email'
-            })
-        } catch (error) {
-            res.clearCookie('otp');
-            res.status(400).json({
-                statusCode: 400,
-                status: 'Error while sending password reset link',
-                statusMessage: error.message
-            })
-
-        }
-    } catch (error) {
-        res.status(400).json({
-            statusCode: 400,
-            status: 'Error while resetting password',
-            statusMessage: error.message
-        })
-    }
-})
-
-exports.resetPassword = catchAsync(async (req, res, next) => {
-    try {
-        const resetToken = req.params.token;
-        const { password, confirmPassword } = req.body;
-
-        if (!resetToken) {
-            return res.status(400).json({
-                statusMessage: 'Invalid token',
-                statusCode: 400
-            });
-        }
-
-        const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
-        
-
-        if (!otpData) {
-            return res.status(400).json({
-                statusCode: 400,
-                statusMessage: 'OTP expired or not found'
-            });
-        }
-
-        const { email, otp } = otpData; // otpData is already an object
-
-        const user = await User.findOne({ email: req.body.email });
-        if (!user) {
-            return res.status(400).json({
-                statusMessage: 'User not found with this email',
-                statusCode: 400
-            });
-        }
-
-        if (!enteredOtp) {
-            return res.status(400).json({
-                statusMessage: 'Please enter the OTP',
-                statusCode: 400
-            });
-        }
-
-        if (otpData.email !== req.body.email) {
-            return res.status(400).json({
-                statusMessage: 'Email does not match, unauthorized request',
-                statusCode: 400
-            });
-        }
-
-        if (otp !== enteredOtp || email !== req.body.email) {
-            return res.status(400).json({
-                statusMessage: 'OTP Incorrect or expired',
-                statusCode: 400
-            });
-        }
-
-        user.password = req.body.password;
-        user.confirmPassword = req.body.confirmPassword;
-        await user.save();
-        res.clearCookie('otp');
-
-        createSendToken(user, 200, res);
-    } catch (error) {
-        res.status(400).json({
-            status: 'Error while resetting password',
-            statusCode: 400,
-            statusMessage: error.message
-        });
-    }
-});
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
     try {
