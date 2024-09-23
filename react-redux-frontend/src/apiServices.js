@@ -130,3 +130,12 @@ export const resetPassword = (token, data) => async (dispatch) => {
         return Promise.reject(error.response.data);
     }
 }
+
+export const jsonData = async () => {
+    try {
+        const response = await axios.get('https://mocki.io/v1/4ef316c4-00d2-409a-82aa-1478d6f9dd8e');
+        return Promise.resolve(response.data);
+    } catch (error) {
+        return Promise.reject(error.response.data);
+    }
+ }
