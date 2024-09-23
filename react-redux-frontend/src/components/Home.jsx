@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Divider,
@@ -75,6 +75,28 @@ function Home() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState([]);
   const theme = useTheme();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filterRow = useMemo(() => {
+    if (!searchTerm) {
+      return rows;
+    }
+
+    return rows.filter((row) => {
+      return Object.values(row).some((value) =>
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  }, [rows, searchTerm]);
+
+  // functionality of both the code is same
+  //   const filteredRow = rows.filter(item =>
+  //     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     item.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     item.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     item.id.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,6 +145,8 @@ function Home() {
               <StyledInputBase
                 placeholder="Search…"
                 inputProps={{ "aria-label": "search" }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </Search>
           </Grid>
@@ -161,7 +185,7 @@ function Home() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {filterRow
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (

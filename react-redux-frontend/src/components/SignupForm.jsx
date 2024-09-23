@@ -11,7 +11,7 @@ import {
   FormControl,
   FormLabel,
 } from "@mui/material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { signup } from "../apiServices";
 
@@ -24,6 +24,12 @@ const SignupForm = () => {
   } = useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+
+  if (isAuthenticated) {
+    navigate("/home");
+  }
 
   // Watch the password field to compare it with confirmPassword
   const password = watch("password");
@@ -41,19 +47,18 @@ const SignupForm = () => {
 
   return (
     <>
-      {localStorage.removeItem("jwt")}
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
         sx={{
           mt: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           maxWidth: 400,
-          mx: 'auto',
-          p: 3, boxShadow: 3
-
+          mx: "auto",
+          p: 3,
+          boxShadow: 3,
         }}
       >
         <Typography variant="h4" gutterBottom>
