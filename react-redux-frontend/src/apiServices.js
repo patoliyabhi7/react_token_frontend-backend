@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { loginStart, loginFailure, loginSuccess, signupStart, signupSuccess, signupFailure, updatePasswordStart, updatePasswordSuccess, passwordResetStart, passwordResetSuccess, passwordResetError, addTaskStart, addTaskSuccess, addTaskFailure } from './features/users/userSlice';
+import { loginStart, loginFailure, loginSuccess, 
+    signupStart, signupSuccess, signupFailure, 
+    updatePasswordStart, updatePasswordSuccess, 
+    passwordResetStart, passwordResetSuccess, passwordResetError, 
+    addTaskStart, addTaskSuccess, addTaskFailure,
+    getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure
+} from './features/users/userSlice';
 
 const API_BASE_URL = 'http://localhost:8001/api/v1/users';
 
@@ -147,7 +153,20 @@ export const addTask = (task) => async (dispatch) => {
         dispatch(addTaskSuccess(response.data));
         return Promise.resolve(response.data);
     } catch (error) {
-        dispatch(addTaskFailure(error.response.data, error.response.status));
-        return Promise.reject(error.response.data);
+        console.log("error: ",error)
+        dispatch(addTaskFailure(error.response, error.response));
+        return Promise.reject(error.response);
+    }
+}
+
+export const getCurrentUserTasks = () => async (dispatch) => {
+    try {
+        dispatch(getCurrentUserTasksStart());
+        const response = await apiClient.get('/tasks');
+        dispatch(getCurrentUserTasksSuccess(response.data));
+        return Promise.resolve(response.data);
+    } catch (error) {
+        dispatch(getCurrentUserTasksFailure(error.response));
+        return Promise.reject(error.response);
     }
 }

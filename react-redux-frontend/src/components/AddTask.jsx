@@ -1,39 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextField, Button, MenuItem, Grid, Typography, Box } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { addTask } from '../apiServices';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AddTask() {
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset
   } = useForm({
     defaultValues: {
       title: '',
       description: '',
-      status: 'in_progress', // Default value
-      priority: 'medium',    // Default value
+      status: 'in_progress',
+      priority: 'medium',
       deadline: '',
     },
   });
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
-      dispatch(addTask(data));
+      await dispatch(addTask(data));
+      reset();
+      toast.success('Task added successfully!');
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
+      
     } catch (error) {
+      toast.error('Add task failed');
       console.error('Add task failed', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const checkDate = (e) => {
+  const validateFutureDate = (value) => {
     const currentDate = new Date().toISOString().split('T')[0];
-    if (e.target.value < currentDate) {
-      error('Please select a future date');
-      e.target.value = '';
-    }
+    return value >= currentDate || 'Please select a future date';
   };
 
   return (
@@ -73,7 +82,7 @@ function AddTask() {
               fullWidth
               label="Status"
               name="status"
-              defaultValue="in_progress" // Ensure default value
+              defaultValue="in_progress"
               {...register('status', { required: 'Status is required' })}
               variant="outlined"
               error={!!errors.status}
@@ -90,7 +99,7 @@ function AddTask() {
               fullWidth
               label="Priority"
               name="priority"
-              defaultValue="medium" // Ensure default value
+              defaultValue="medium"
               {...register('priority', { required: 'Priority is required' })}
               variant="outlined"
               error={!!errors.priority}
@@ -108,20 +117,20 @@ function AddTask() {
               type="date"
               name="deadline"
               label="Deadline"
-              {...register('deadline', { required: 'Deadline is required' })}
+              {...register('deadline', { required: 'Deadline is required', validate: validateFutureDate })}
               InputLabelProps={{ shrink: true }}
-              onChange={checkDate}
               error={!!errors.deadline}
               helperText={errors.deadline ? errors.deadline.message : ''}
             />
           </Grid>
           <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              ADD TASK
+            <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
+              {loading ? 'Adding...' : 'ADD TASK'}
             </Button>
           </Grid>
         </Grid>
       </form>
+      <ToastContainer />
     </Box>
   );
 }

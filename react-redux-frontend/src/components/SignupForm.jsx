@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   TextField,
@@ -24,6 +24,8 @@ const SignupForm = () => {
   } = useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
@@ -36,12 +38,16 @@ const SignupForm = () => {
 
   const onSubmit = async (data) => {
     try {
+      setIsLoading(true);
       const result = await dispatch(signup(data));
       if (!result.error) {
         navigate("/home"); // Navigate to the home page
       }
     } catch (error) {
       console.error("Signup failed", error);
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,8 +67,8 @@ const SignupForm = () => {
           boxShadow: 3,
         }}
       >
-        <Typography variant="h4" gutterBottom>
-          Signup
+        <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem', alignSelf:'center'}}>
+               signup
         </Typography>
         <TextField
           fullWidth
@@ -169,7 +175,9 @@ const SignupForm = () => {
           variant="contained"
           color="primary"
           sx={{ mt: 2 }}
+          disabled={isLoading}
         >
+          {isLoading ? "Loading..." : "Signup"}
           Signup
         </Button>
       </Box>

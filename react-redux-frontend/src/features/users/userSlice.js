@@ -5,8 +5,9 @@ const initialState = {
     status: 'idle',
     error: null,
     isAuthenticated: false,
-    passwordResetStatus: 'idle', // Added for password reset
-    passwordResetError: null,    // Added for password reset
+    passwordResetStatus: 'idle', 
+    passwordResetError: null,
+    tasks: [],    
 };
 
 const userSlice = createSlice({
@@ -67,9 +68,20 @@ const userSlice = createSlice({
         },
         addTaskSuccess(state, action) {
             state.status = 'succeeded';
-            state.tasks.push(action.payload);
+            // state.tasks.push(action.payload);
         },
         addTaskFailure(state, action) {
+            state.status = 'failed';
+            state.error = action.payload;
+        },
+        getCurrentUserTasksStart(state){
+            state.status = 'loading';
+        },
+        getCurrentUserTasksSuccess(state, action){
+            state.status = 'succeeded';
+            state.tasks = action.payload;
+        },
+        getCurrentUserTasksFailure(state, action){
             state.status = 'failed';
             state.error = action.payload;
         },
@@ -80,7 +92,8 @@ export const { loginStart, loginSuccess, loginFailure,
     signupStart, signupSuccess, signupFailure,
     logout, updatePasswordStart, updatePasswordSuccess,
     passwordResetStart, passwordResetSuccess, passwordResetError,
-    addTaskStart, addTaskSuccess, addTaskFailure
+    addTaskStart, addTaskSuccess, addTaskFailure,
+    getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure
 } = userSlice.actions;
 
 export default userSlice.reducer;

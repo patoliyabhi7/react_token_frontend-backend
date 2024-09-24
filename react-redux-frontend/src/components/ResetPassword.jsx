@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography, Alert } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function ResetPassword() {
   const {
@@ -19,6 +19,7 @@ function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const {token} = useParams();
+  const navigate = useNavigate();
 
   const password = watch("password");
 
@@ -26,11 +27,11 @@ function ResetPassword() {
     try {
       setIsLoading(true); 
       const result = await dispatch(resetPassword(token, data));
-      console.log('result :>> ', result);
       if (result.status === "success") {
         toast.success("Password Reset Success", {
           position: "bottom-right",
         });
+        navigate("/");
         setErrorMessage("");
         reset();
       }
@@ -62,8 +63,8 @@ function ResetPassword() {
       }}
     >
       <ToastContainer />
-      <Typography variant="h4" gutterBottom sx={{ alignSelf: "center" }}>
-        Reset Password
+      <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem' }}>
+        reset password
       </Typography>
       <Typography variant="body1" gutterBottom>
         Enter new password and confirm password

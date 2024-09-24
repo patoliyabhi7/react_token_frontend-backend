@@ -55,9 +55,9 @@ function ForgotPassword() {
       }}
     >
       <ToastContainer />
-      <Typography variant="h4" gutterBottom sx={{ alignSelf: "center" }}>
-        Forgot Password?
-      </Typography>
+      <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem', alignSelf:'center'}}>
+                forgot password
+            </Typography>
 
       <Typography variant="body1" gutterBottom>
         Enter your email and we'll send you a link to reset your password

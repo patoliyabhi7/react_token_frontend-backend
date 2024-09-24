@@ -19,6 +19,7 @@ import Sidebar from "./components/Sidebar.jsx";
 import { fetchCurrentUser } from "./apiServices";
 import "./App.css";
 import AddTask from "./components/AddTask.jsx";
+import Tasks from "./components/Tasks.jsx";
 
 const AuthWrapper = () => {
   const token = localStorage.getItem("jwt");
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/home" element={<Home />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/add-task" element={<AddTask />} />
+                <Route path="/all-task" element={<Tasks />} />
               </Route>
             </Routes>
           </Box>

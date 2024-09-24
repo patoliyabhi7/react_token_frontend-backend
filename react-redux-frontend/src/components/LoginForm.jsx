@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 import { TextField, Button, Box, Typography, Alert } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ function LoginForm() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
@@ -18,6 +19,7 @@ function LoginForm() {
 
     const onSubmit = async (data) => {
         try {
+            setIsLoading(true);
             const result = await dispatch(login(data));
             if (result.status === "success") {
                 navigate('/home');
@@ -26,6 +28,9 @@ function LoginForm() {
             console.error('An error occurred:', error.statusMessage);
             const errorMessage = error.statusMessage ? error.statusMessage : 'An unexpected error occurred';
             setErrorMessage(errorMessage);
+        }
+        finally {
+            setIsLoading(false);
         }
     };
 
@@ -42,7 +47,9 @@ function LoginForm() {
                 mx: 'auto',
                 p: 3, boxShadow: 3
             }}>
-                <Typography variant="h4" gutterBottom sx={{alignSelf: 'center'}}>Login</Typography>
+            <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem', alignSelf:'center'}}>
+                login
+            </Typography>
                 {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
                 <TextField
                     fullWidth
@@ -61,8 +68,9 @@ function LoginForm() {
                     error={!!errors.password}
                     helperText={errors.password ? errors.password.message : ''}
                 />
-                <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, alignSelf: 'flex-start' }}>
-                    Login
+                <Button type="submit" variant="contained" color="primary"
+                 disabled={isLoading} sx={{ mt: 2, alignSelf: 'flex-start' }}>
+                    {isLoading ? 'Loading...' : 'Login'}
                 </Button>
                 <Button
                     color="secondary"

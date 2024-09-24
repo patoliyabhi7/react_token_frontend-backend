@@ -12,8 +12,9 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import HomeIcon from "@mui/icons-material/Home";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import AddTaskIcon from '@mui/icons-material/AddTask';
+import AddTaskIcon from "@mui/icons-material/AddTask";
 import { Link, useLocation } from "react-router-dom";
+import ChecklistIcon from '@mui/icons-material/Checklist';
 
 const drawerWidth = 240;
 
@@ -46,7 +47,19 @@ export default function Sidebar() {
         anchor="left"
       >
         <Toolbar sx={{}}>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: "center" }}>
+          {/* <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: "center" }}>
+            Dashboard
+          </Typography> */}
+          <Typography
+            variant="overline"
+            gutterBottom
+            sx={{
+              flexGrow: 1,
+              display: "block",
+              fontSize: "1rem",
+              alignSelf: "center",
+            }}
+          >
             Dashboard
           </Typography>
         </Toolbar>
@@ -57,13 +70,15 @@ export default function Sidebar() {
               component={Link}
               to="/home"
               sx={{
-                ...isActive("/home") ? activeStyle : {},
+                ...(isActive("/home") ? activeStyle : {}),
                 "&:hover": {
                   backgroundColor: "rgba(0, 0, 0, 0.05)",
                 },
               }}
             >
-              <ListItemIcon sx={{ color: isActive("/home") ? "#1976d2" : "inherit" }}>
+              <ListItemIcon
+                sx={{ color: isActive("/home") ? "#1976d2" : "inherit" }}
+              >
                 <HomeIcon />
               </ListItemIcon>
               <ListItemText primary="Home" />
@@ -75,33 +90,58 @@ export default function Sidebar() {
               component={Link}
               to="/profile"
               sx={{
-                ...isActive("/profile") ? activeStyle : {},
+                ...(isActive("/profile") ? activeStyle : {}),
                 "&:hover": {
                   backgroundColor: "rgba(0, 0, 0, 0.05)",
                 },
               }}
             >
-              <ListItemIcon sx={{ color: isActive("/profile") ? "#1976d2" : "inherit" }}>
+              <ListItemIcon
+                sx={{ color: isActive("/profile") ? "#1976d2" : "inherit" }}
+              >
                 <AccountCircleIcon />
               </ListItemIcon>
               <ListItemText primary="Profile" />
             </ListItemButton>
           </ListItem>
+          <Divider sx={{ m: 0.5 }} />
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
               to="/add-task"
               sx={{
-                ...isActive("/add-task") ? activeStyle : {},
+                ...(isActive("/add-task") ? activeStyle : {}),
                 "&:hover": {
                   backgroundColor: "rgba(0, 0, 0, 0.05)",
                 },
               }}
             >
-              <ListItemIcon sx={{ color: isActive("/add-task") ? "#1976d2" : "inherit" }}>
+              <ListItemIcon
+                sx={{ color: isActive("/add-task") ? "#1976d2" : "inherit" }}
+              >
                 <AddTaskIcon />
               </ListItemIcon>
               <ListItemText primary="Add Task" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/all-task"
+              sx={{
+                ...(isActive("/all-task") ? activeStyle : {}),
+                "&:hover": {
+                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <ListItemIcon
+                sx={{ color: isActive("/all-task") ? "#1976d2" : "inherit" }}
+              >
+                <ChecklistIcon />
+              </ListItemIcon>
+              <ListItemText primary="All Task" />
             </ListItemButton>
           </ListItem>
         </List>

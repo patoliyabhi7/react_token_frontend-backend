@@ -21,6 +21,8 @@ function Profile() {
   const user = useSelector((state) => state.user.user);
   const navigate = useNavigate();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -32,6 +34,12 @@ function Profile() {
 
   const onSubmit = async (data) => {
     try {
+      setIsLoading(true);
+      if(data.currentPassword === data.password && data.password === data.confirmPassword) {
+        setErrorMessage("New password cannot be the same as the current password");
+        setIsLoading(false);
+        return;
+      }
       const result = await dispatch(updatePassword(data));
       if (result.status === "success") {
         toast.success("Password updated successfully.", {
@@ -44,6 +52,9 @@ function Profile() {
     } catch (error) {
       const errorMessage = error ? error : "An unexpected error occurred";
       setErrorMessage(errorMessage);
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -123,7 +134,7 @@ function Profile() {
                 color="secondary"
                 onClick={handleChangePassword}
               >
-                Change Password
+               Update Password
               </Button>
             </Box>
           </CardContent>
@@ -139,8 +150,8 @@ function Profile() {
             onSubmit={handleSubmit(onSubmit)}
             sx={{ maxWidth: 600, width: "100%", p: 3, boxShadow: 3 }}
           >
-            <Typography variant="h6" gutterBottom>
-              Change Password
+            <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem', alignSelf:'center'}}>
+                Update password
             </Typography>
             {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
             <TextField
@@ -193,8 +204,9 @@ function Profile() {
               variant="contained"
               color="primary"
               sx={{ mt: 2 }}
+              disabled={isLoading}
             >
-              Submit
+              {isLoading ? "Updating..." : "Update Password"}
             </Button>
           </Box>
         </Box>
