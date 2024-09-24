@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     user: null,
-    status: 'idle',
+    status: 'loading',
     error: null,
     isAuthenticated: false,
     passwordResetStatus: 'idle', 
@@ -75,13 +75,24 @@ const userSlice = createSlice({
             state.error = action.payload;
         },
         getCurrentUserTasksStart(state){
-            state.status = 'loading';
+            // state.status = 'loading';
         },
         getCurrentUserTasksSuccess(state, action){
             state.status = 'succeeded';
             state.tasks = action.payload;
         },
         getCurrentUserTasksFailure(state, action){
+            state.status = 'failed';
+            state.error = action.payload;
+        },
+        deleteTaskStart(state){
+            state.status = 'loading';
+        },
+        deleteTaskSuccess(state, action){
+            state.status = 'succeeded';
+            state.tasks = state.tasks.filter(task => task._id !== action.payload);
+        },
+        deleteTaskFailure(state, action){
             state.status = 'failed';
             state.error = action.payload;
         },
@@ -93,7 +104,8 @@ export const { loginStart, loginSuccess, loginFailure,
     logout, updatePasswordStart, updatePasswordSuccess,
     passwordResetStart, passwordResetSuccess, passwordResetError,
     addTaskStart, addTaskSuccess, addTaskFailure,
-    getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure
+    getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure,
+    deleteTaskStart, deleteTaskSuccess, deleteTaskFailure
 } = userSlice.actions;
 
 export default userSlice.reducer;

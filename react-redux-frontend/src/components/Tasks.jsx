@@ -6,20 +6,23 @@ import {
   Typography,
   Grid,
   useTheme,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Skeleton,
+  Button,
 } from "@mui/material";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import { getCurrentUserTasks } from "../apiServices";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUserTasks } from "../apiServices";
+import TableShimmer from "./Shimmer/TableShimmer";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -30,7 +33,7 @@ const Search = styled("div")(({ theme }) => ({
   },
   marginLeft: 0,
   width: "100%",
-  border: `1px solid ${theme.palette.divider}`, // Added border
+  border: `1px solid ${theme.palette.divider}`,
   [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
     width: "auto",
@@ -69,13 +72,15 @@ const columns = [
   { id: "description", label: "Description" },
   { id: "status", label: "Status" },
   { id: "priority", label: "Priority" },
-  { id: "deadline", label: "Deadline" },    
+  { id: "deadline", label: "Deadline" },
+  { id: "action", label: "Action" },
 ];
 
 function Tasks() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const dispatch = useDispatch();
@@ -87,11 +92,13 @@ function Tasks() {
         setRows(data.response.tasks);
       } catch (error) {
         console.error("Error fetching data: ", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const filterRow = useMemo(() => {
     if (!searchTerm) {
@@ -179,67 +186,94 @@ function Tasks() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filterRow
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={row._id}
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: alpha(
-                          theme.palette.primary.light,
-                          0.1
-                        ),
-                      },
-                    }}
-                  >
-                    {columns.map((column) => {
-                    const value = row[column.id];
+            {loading ? (
+              <TableShimmer columns={columns} rowsPerPage={rowsPerPage}/>
+            )
+              : filterRow
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => {
                     return (
-                        <TableCell key={column.id} align={column.align}>
-                        {column.id === "deadline" ? new Date(value).toLocaleDateString() : null}
-                       
-                        {column.id === "status" ? (
-                            <Box
-                            sx={{
-                                display: 'inline-block',
-                                bgcolor: value === "completed" ? 'success.main' : value === "in_progress" ? 'info.main' : 'warning.main',
-                                color: 'primary.contrastText',
-                                p: 1,
-                                borderRadius: 2,
-                                minWidth: 90, // Set a default width
-                                textAlign: 'center', // Center the text
-                            }}
-                            >
-                            {value}
-                            </Box>
-                        ) : null}
-                        {column.id === "priority" ? (
-                            <Box
-                            sx={{
-                                display: 'inline-block',
-                                bgcolor: value === "high" ? 'error.main' : value === "medium" ? 'warning.main' : 'info.main',
-                                color: 'primary.contrastText',
-                                p: 1,
-                                borderRadius: 2,
-                                minWidth: 80, // Set a default width
-                                textAlign: 'center', // Center the text
-                            }}
-                            >
-                            {value}
-                            </Box>
-                        ) : null}
-                        {column.id !== "deadline" && column.id !== "status" && column.id !== "priority" ? value : null}
-                        </TableCell>
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={row._id}
+                        sx={{
+                          "&:hover": {
+                            backgroundColor: alpha(
+                              theme.palette.primary.light,
+                              0.1
+                            ),
+                          },
+                        }}
+                      >
+                        {columns.map((column) => {
+                          const value = row[column.id];
+                          return (
+                            <>
+                            <TableCell key={column.id} align={column.align}>
+                              {column.id === "deadline"
+                                ? new Date(value).toLocaleDateString()
+                                : null}
+
+                              {column.id === "status" ? (
+                                <Box
+                                  sx={{
+                                    display: "inline-block",
+                                    bgcolor:
+                                      value === "completed"
+                                        ? "success.main"
+                                        : value === "in_progress"
+                                        ? "info.main"
+                                        : "warning.main",
+                                    color: "primary.contrastText",
+                                    p: 1,
+                                    borderRadius: 2,
+                                    minWidth: 90, // Set a default width
+                                    textAlign: "center", // Center the text
+                                  }}
+                                >
+                                  {value}
+                                </Box>
+                              ) : null}
+                              {column.id === "priority" ? (
+                                <Box
+                                  sx={{
+                                    display: "inline-block",
+                                    bgcolor:
+                                      value === "high"
+                                        ? "error.main"
+                                        : value === "medium"
+                                        ? "warning.main"
+                                        : "info.main",
+                                    color: "primary.contrastText",
+                                    p: 1,
+                                    borderRadius: 2,
+                                    minWidth: 80, // Set a default width
+                                    textAlign: "center", // Center the text
+                                  }}
+                                >
+                                  {value}
+                                </Box>
+
+                              ) : null}
+                              {column.id !== "deadline" &&
+                              column.id !== "status" &&
+                              column.id !== "priority"
+                                ? value
+                                : null}
+                                
+                            </TableCell>
+                            
+                            </>
+                          ); 
+                        }
+                        )}
+                        
+                      </TableRow>
+                      
                     );
-                    })}
-                  </TableRow>
-                );
-              })}
+                  })}
           </TableBody>
         </Table>
       </TableContainer>

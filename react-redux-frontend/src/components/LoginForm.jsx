@@ -25,7 +25,7 @@ function LoginForm() {
                 navigate('/home');
             }
         } catch (error) {
-            console.error('An error occurred:', error.statusMessage);
+            console.error('An error occurred:', error);
             const errorMessage = error.statusMessage ? error.statusMessage : 'An unexpected error occurred';
             setErrorMessage(errorMessage);
         }

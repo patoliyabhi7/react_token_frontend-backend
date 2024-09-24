@@ -5,7 +5,8 @@ import { loginStart, loginFailure, loginSuccess,
     updatePasswordStart, updatePasswordSuccess, 
     passwordResetStart, passwordResetSuccess, passwordResetError, 
     addTaskStart, addTaskSuccess, addTaskFailure,
-    getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure
+    getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure,
+    deleteTaskStart, deleteTaskSuccess, deleteTaskFailure
 } from './features/users/userSlice';
 
 const API_BASE_URL = 'http://localhost:8001/api/v1/users';
@@ -81,10 +82,10 @@ export const login = (credentials) => async (dispatch) => {
     try {
         const response = await apiClient.post(`/login`, credentials);
         const { token, response: { user } } = response.data;
-
+        
         localStorage.setItem('jwt', token);
-
         dispatch(loginSuccess(user));
+
         return Promise.resolve(response.data);
     } catch (error) {
         const errorMessage = error.response ? error.response.data : 'Network Error';
@@ -167,6 +168,18 @@ export const getCurrentUserTasks = () => async (dispatch) => {
         return Promise.resolve(response.data);
     } catch (error) {
         dispatch(getCurrentUserTasksFailure(error.response));
+        return Promise.reject(error.response);
+    }
+}
+
+export const deleteTask = (taskId) => async (dispatch) => {
+    try {
+        dispatch(deleteTaskStart());
+        const response = await apiClient.delete(`/tasks/${taskId}`);
+        dispatch(deleteTaskSuccess(taskId));
+        return Promise.resolve(response.data);
+    } catch (error) {
+        dispatch(deleteTaskFailure(error.response));
         return Promise.reject(error.response);
     }
 }

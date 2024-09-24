@@ -6,19 +6,21 @@ import {
   Typography,
   Grid,
   useTheme,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Skeleton,
 } from "@mui/material";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import { jsonData } from "../apiServices";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
+import { jsonData } from "../apiServices";
+import TableShimmer from "./Shimmer/TableShimmer";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -29,7 +31,7 @@ const Search = styled("div")(({ theme }) => ({
   },
   marginLeft: 0,
   width: "100%",
-  border: `1px solid ${theme.palette.divider}`, // Added border
+  border: `1px solid ${theme.palette.divider}`,
   [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
     width: "auto",
@@ -74,6 +76,7 @@ function Home() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -89,15 +92,6 @@ function Home() {
     });
   }, [rows, searchTerm]);
 
-  // functionality of both the code is same
-  //   const filteredRow = rows.filter(item =>
-  //     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     item.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     item.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     item.id.toString().toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -105,6 +99,8 @@ function Home() {
         setRows(data);
       } catch (error) {
         console.error("Error fetching data: ", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -123,7 +119,6 @@ function Home() {
   return (
     <Paper
       sx={{
-        width: "100%",
         overflow: "hidden",
         marginTop: 2,
         boxShadow: theme.shadows[3],
@@ -185,35 +180,39 @@ function Home() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filterRow
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={row.id}
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: alpha(
-                          theme.palette.primary.light,
-                          0.1
-                        ),
-                      },
-                    }}
-                  >
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {value}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
+            {loading
+              ? (
+                <TableShimmer columns={columns} rowsPerPage={rowsPerPage} />
+              )
+              : filterRow
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => {
+                    return (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={row.id}
+                        sx={{
+                          "&:hover": {
+                            backgroundColor: alpha(
+                              theme.palette.primary.light,
+                              0.1
+                            ),
+                          },
+                        }}
+                      >
+                        {columns.map((column) => {
+                          const value = row[column.id];
+                          return (
+                            <TableCell key={column.id} align={column.align}>
+                              {value}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    );
+                  })}
           </TableBody>
         </Table>
       </TableContainer>
