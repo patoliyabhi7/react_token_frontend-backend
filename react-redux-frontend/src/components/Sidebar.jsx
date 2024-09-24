@@ -16,7 +16,7 @@ import AddTaskIcon from "@mui/icons-material/AddTask";
 import { Link, useLocation } from "react-router-dom";
 import ChecklistIcon from '@mui/icons-material/Checklist';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 export default function Sidebar() {
   const location = useLocation();

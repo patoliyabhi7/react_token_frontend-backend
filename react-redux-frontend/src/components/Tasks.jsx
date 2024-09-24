@@ -64,12 +64,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const columns = [
-  { id: "_id", label: "Sr. No.", minWidth: 50 },
-  { id: "title", label: "Title", minWidth: 130 },
-  { id: "description", label: "Description", minWidth: 200 },
-  { id: "status", label: "Status", minWidth: 100 },
-  { id: "priority", label: "Priority", minWidth: 150 },
-  { id: "deadline", label: "Deadline", minWidth: 150 },
+  { id: "_id", label: "Id" },
+  { id: "title", label: "Title" },
+  { id: "description", label: "Description" },
+  { id: "status", label: "Status" },
+  { id: "priority", label: "Priority" },
+  { id: "deadline", label: "Deadline" },    
 ];
 
 function Tasks() {
@@ -165,14 +165,14 @@ function Tasks() {
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                  <TableCell
+                <TableCell
                   key={column.id}
                   align={column.align}
                   style={{
-                      minWidth: column.minWidth,
-                      backgroundColor: theme.palette.grey[200],
-                    }}
-                    >
+                    minWidth: column.minWidth,
+                    backgroundColor: theme.palette.grey[200],
+                  }}
+                >
                   {column.label}
                 </TableCell>
               ))}
@@ -198,12 +198,44 @@ function Tasks() {
                     }}
                   >
                     {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
+                    const value = row[column.id];
+                    return (
                         <TableCell key={column.id} align={column.align}>
-                          {value}
+                        {column.id === "deadline" ? new Date(value).toLocaleDateString() : null}
+                       
+                        {column.id === "status" ? (
+                            <Box
+                            sx={{
+                                display: 'inline-block',
+                                bgcolor: value === "completed" ? 'success.main' : value === "in_progress" ? 'info.main' : 'warning.main',
+                                color: 'primary.contrastText',
+                                p: 1,
+                                borderRadius: 2,
+                                minWidth: 90, // Set a default width
+                                textAlign: 'center', // Center the text
+                            }}
+                            >
+                            {value}
+                            </Box>
+                        ) : null}
+                        {column.id === "priority" ? (
+                            <Box
+                            sx={{
+                                display: 'inline-block',
+                                bgcolor: value === "high" ? 'error.main' : value === "medium" ? 'warning.main' : 'info.main',
+                                color: 'primary.contrastText',
+                                p: 1,
+                                borderRadius: 2,
+                                minWidth: 80, // Set a default width
+                                textAlign: 'center', // Center the text
+                            }}
+                            >
+                            {value}
+                            </Box>
+                        ) : null}
+                        {column.id !== "deadline" && column.id !== "status" && column.id !== "priority" ? value : null}
                         </TableCell>
-                      );
+                    );
                     })}
                   </TableRow>
                 );
