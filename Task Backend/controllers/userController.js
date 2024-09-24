@@ -580,6 +580,36 @@ exports.getAllTasks = catchAsync(async (req, res, next) => {
     });
 });
 
+exports.getTaskById = catchAsync(async (req, res, next) => {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+        return res.status(400).json({
+            statusMessage: 'User not found or not logged in',
+            statusCode: 400
+        })
+    }
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+        return res.status(400).json({
+            statusMessage: 'Task not found',
+            statusCode: 400
+        });
+    }
+    if (task.user_id.toString() !== req.user.id) {
+        return res.status(401).json({
+            statusMessage: 'Unauthorized request!, You are not authorized to view this task.',
+            statusCode: 401
+        });
+    }
+    res.status(200).json({
+        statusMessage: 'Task fetched successfully',
+        statusCode: 200,
+        response: {
+            task
+        }
+    });
+});
+
 exports.updateTask = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.user.id);
     if (!user) {

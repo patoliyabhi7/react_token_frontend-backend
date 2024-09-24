@@ -16,13 +16,17 @@ import {
   TableRow,
   Skeleton,
   Button,
+  IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUserTasks } from "../apiServices";
+import { deleteTask, getCurrentUserTasks } from "../apiServices";
 import TableShimmer from "./Shimmer/TableShimmer";
+import { useNavigate } from "react-router-dom";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -84,11 +88,13 @@ function Tasks() {
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await dispatch(getCurrentUserTasks());
+        console.log('data', data)
         setRows(data.response.tasks);
       } catch (error) {
         console.error("Error fetching data: ", error);
@@ -99,7 +105,6 @@ function Tasks() {
 
     fetchData();
   }, [dispatch]);
-
   const filterRow = useMemo(() => {
     if (!searchTerm) {
       return rows;
@@ -119,6 +124,18 @@ function Tasks() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/edit-task/${id}`);
+  };
+
+  const handleDelete = async(id) => {
+    try {
+      await dispatch(deleteTask(id));
+    } catch (error) {
+      console.error("Error deleting task: ", error);
+    }
   };
 
   return (
@@ -210,7 +227,6 @@ function Tasks() {
                         {columns.map((column) => {
                           const value = row[column.id];
                           return (
-                            <>
                             <TableCell key={column.id} align={column.align}>
                               {column.id === "deadline"
                                 ? new Date(value).toLocaleDateString()
@@ -255,23 +271,33 @@ function Tasks() {
                                 >
                                   {value}
                                 </Box>
-
+                              ) : null}
+                              {column.id === "action" ? (
+                                <Box sx={{ display: "flex", gap: 1 }}>
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() => handleEdit(row._id)}
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                  <IconButton
+                                    color="secondary"
+                                    onClick={() => handleDelete(row._id)}
+                                  >
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </Box>
                               ) : null}
                               {column.id !== "deadline" &&
                               column.id !== "status" &&
-                              column.id !== "priority"
+                              column.id !== "priority" &&
+                              column.id !== "action"
                                 ? value
                                 : null}
-                                
                             </TableCell>
-                            
-                            </>
-                          ); 
-                        }
-                        )}
-                        
+                          );
+                        })}
                       </TableRow>
-                      
                     );
                   })}
           </TableBody>

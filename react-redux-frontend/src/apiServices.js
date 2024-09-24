@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { loginStart, loginFailure, loginSuccess, 
-    signupStart, signupSuccess, signupFailure, 
-    updatePasswordStart, updatePasswordSuccess, 
-    passwordResetStart, passwordResetSuccess, passwordResetError, 
+import {
+    loginStart, loginFailure, loginSuccess,
+    signupStart, signupSuccess, signupFailure,
+    updatePasswordStart, updatePasswordSuccess,
+    passwordResetStart, passwordResetSuccess, passwordResetError,
     addTaskStart, addTaskSuccess, addTaskFailure,
     getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure,
-    deleteTaskStart, deleteTaskSuccess, deleteTaskFailure
+    deleteTaskStart, deleteTaskSuccess, deleteTaskFailure,
+    getTaskByIdStart, getTaskByIdSuccess, getTaskByIdFailure,
+    updateTaskStart, updateTaskSuccess, updateTaskFailure,
 } from './features/users/userSlice';
 
 const API_BASE_URL = 'http://localhost:8001/api/v1/users';
@@ -82,7 +85,7 @@ export const login = (credentials) => async (dispatch) => {
     try {
         const response = await apiClient.post(`/login`, credentials);
         const { token, response: { user } } = response.data;
-        
+
         localStorage.setItem('jwt', token);
         dispatch(loginSuccess(user));
 
@@ -154,7 +157,7 @@ export const addTask = (task) => async (dispatch) => {
         dispatch(addTaskSuccess(response.data));
         return Promise.resolve(response.data);
     } catch (error) {
-        console.log("error: ",error)
+        console.log("error: ", error)
         dispatch(addTaskFailure(error.response, error.response));
         return Promise.reject(error.response);
     }
@@ -180,6 +183,34 @@ export const deleteTask = (taskId) => async (dispatch) => {
         return Promise.resolve(response.data);
     } catch (error) {
         dispatch(deleteTaskFailure(error.response));
+        return Promise.reject(error.response);
+    }
+}
+
+export const getTaskById = (taskId) => async (dispatch) => {
+    try {
+        dispatch(getTaskByIdStart());
+        console.log("start")
+        const response = await apiClient.get(`/tasks/${taskId}`);
+        console.log("start")
+        dispatch(getTaskByIdSuccess(response.data));
+        return Promise.resolve(response.data);
+    }
+    catch (error) {
+        console.log(error)
+        dispatch(getTaskByIdFailure(error.response));
+        return Promise.reject(error.response);
+    }
+}
+
+export const updateTask = (taskId, task) => async (dispatch) => {
+    try {
+        dispatch(updateTaskStart());
+        const response = await apiClient.put(`/tasks/${taskId.id}`, taskId);
+        dispatch(updateTaskSuccess(response.data));
+        return Promise.resolve(response.data);
+    } catch (error) {
+        dispatch(updateTaskFailure(error.response));
         return Promise.reject(error.response);
     }
 }

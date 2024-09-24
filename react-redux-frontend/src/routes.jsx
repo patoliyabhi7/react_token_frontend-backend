@@ -9,6 +9,7 @@ import Profile from "./components/Profile";
 import AddTask from "./components/AddTask";
 import Tasks from "./components/Tasks";
 import { useSelector } from "react-redux";
+import EditTask from "./components/EditTask";
 
 const AuthWrapper = (st) => {
   const token = localStorage.getItem("jwt");
@@ -44,6 +45,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/add-task" element={<AddTask />} />
         <Route path="/all-task" element={<Tasks />} />
+        <Route path="/edit-task/:id" element={<EditTask />} />
       </Route>
     </Routes>
   );

@@ -18,10 +18,7 @@ function App() {
     }
   }, [dispatch]);
 
-  if (status === "loading") {
-    return <Loader />;
-  }
-
+  
   return (
     <Router>
       <Layout>

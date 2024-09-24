@@ -96,6 +96,28 @@ const userSlice = createSlice({
             state.status = 'failed';
             state.error = action.payload;
         },
+        getTaskByIdStart(state){
+            state.status = 'loading';
+        },
+        getTaskByIdSuccess(state, action){
+            state.status = 'succeeded';
+            state.task = action.payload;
+        },
+        getTaskByIdFailure(state, action){
+            state.status = 'failed';
+            state.error = action.payload;
+        },
+        updateTaskStart(state){
+            // state.status = 'loading';
+        },
+        updateTaskSuccess(state, action){
+            state.status = 'succeeded';
+            state.task = action.payload;
+        },
+        updateTaskFailure(state, action){
+            state.status = 'failed';
+            state.error = action.payload;
+        },
     }
 });
 
@@ -105,7 +127,9 @@ export const { loginStart, loginSuccess, loginFailure,
     passwordResetStart, passwordResetSuccess, passwordResetError,
     addTaskStart, addTaskSuccess, addTaskFailure,
     getCurrentUserTasksStart, getCurrentUserTasksSuccess, getCurrentUserTasksFailure,
-    deleteTaskStart, deleteTaskSuccess, deleteTaskFailure
+    deleteTaskStart, deleteTaskSuccess, deleteTaskFailure,
+    getTaskByIdStart, getTaskByIdSuccess, getTaskByIdFailure,
+    updateTaskStart, updateTaskSuccess, updateTaskFailure
 } = userSlice.actions;
 
 export default userSlice.reducer;
