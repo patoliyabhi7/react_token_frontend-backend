@@ -16,7 +16,6 @@ import { useForm } from "react-hook-form";
 import { updatePassword } from "../apiServices";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loader from "./Loader";
 
 function Profile() {
   const user = useSelector((state) => state.user.user);

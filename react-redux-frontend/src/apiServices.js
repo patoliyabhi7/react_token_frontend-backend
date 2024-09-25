@@ -182,6 +182,7 @@ export const deleteTask = (taskId) => async (dispatch) => {
         dispatch(deleteTaskSuccess(taskId));
         return Promise.resolve(response.data);
     } catch (error) {
+        console.log("apiServices error: ", error)
         dispatch(deleteTaskFailure(error.response));
         return Promise.reject(error.response);
     }
@@ -197,7 +198,7 @@ export const getTaskById = (taskId) => async (dispatch) => {
         return Promise.resolve(response.data);
     }
     catch (error) {
-        console.log(error)
+        console.log("error", error)
         dispatch(getTaskByIdFailure(error.response));
         return Promise.reject(error.response);
     }

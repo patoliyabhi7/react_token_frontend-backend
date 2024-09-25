@@ -75,7 +75,7 @@ const userSlice = createSlice({
             state.error = action.payload;
         },
         getCurrentUserTasksStart(state){
-            // state.status = 'loading';
+            state.status = 'loading';
         },
         getCurrentUserTasksSuccess(state, action){
             state.status = 'succeeded';
@@ -108,7 +108,7 @@ const userSlice = createSlice({
             state.error = action.payload;
         },
         updateTaskStart(state){
-            // state.status = 'loading';
+            state.status = 'loading';
         },
         updateTaskSuccess(state, action){
             state.status = 'succeeded';

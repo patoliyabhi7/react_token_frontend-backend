@@ -5,7 +5,6 @@ import { fetchCurrentUser } from "./apiServices";
 import Layout from "./components/Layout";
 import AppRoutes from "./routes";
 import "./App.css";
-import Loader from "./components/Loader";
 
 function App() {
   const dispatch = useDispatch();

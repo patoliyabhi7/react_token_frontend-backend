@@ -94,7 +94,6 @@ function Tasks() {
     const fetchData = async () => {
       try {
         const data = await dispatch(getCurrentUserTasks());
-        console.log('data', data)
         setRows(data.response.tasks);
       } catch (error) {
         console.error("Error fetching data: ", error);
@@ -134,6 +133,7 @@ function Tasks() {
     try {
       await dispatch(deleteTask(id));
     } catch (error) {
+      console.log(error)
       console.error("Error deleting task: ", error);
     }
   };
