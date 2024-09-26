@@ -1,3 +1,4 @@
+// Navigation.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -9,14 +10,14 @@ import {
   Menu,
   MenuItem,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import { useAuth } from "./../utils/AuthContext";
 
 const Navigation = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  // const isAuthenticated = !!localStorage.getItem("jwt");
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,58 +41,58 @@ const Navigation = () => {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     fontWeight: "bold",
   };
+
   return (
-    <div>
-      <AppBar position="fixed">
-        <Toolbar>
-          {!isAuthenticated ? (
-            <>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/"
-                style={isActive("/") ? activeStyle : {}}
+    <AppBar position="fixed">
+      <Toolbar>
+        {isLoading ? (
+          <Box sx={{ flexGrow: 1 }} />
+        ) : !isAuthenticated ? (
+          <>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/"
+              style={isActive("/") ? activeStyle : {}}
+            >
+              Login
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/signup"
+              style={isActive("/signup") ? activeStyle : {}}
+            >
+              Signup
+            </Button>
+          </>
+        ) : (
+          <>
+            <Box sx={{ flexGrow: 1 }} />
+            <Avatar sx={{ cursor: "pointer" }} onClick={handleMenuOpen}>
+              {/* User avatar content */}
+            </Avatar>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem
+                onClick={() => {
+                  handleMenuClose();
+                  navigate("/settings");
+                }}
               >
-                Login
-              </Button>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/signup"
-                style={isActive("/signup") ? activeStyle : {}}
-              >
-                Signup
-              </Button>
-            </>
-          ) : (
-            <>
-              <Box sx={{ flexGrow: 1 }} />
-              <Avatar sx={{ cursor: "pointer" }} onClick={handleMenuOpen}>
-                {/* Assuming you have a user object with a name */}
-                {/* Replace 'U' with user?.name?.charAt(0) if you have user data */}
-                {/* {user?.name?.charAt(0)} */}
-              </Avatar>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-              >
-                <MenuItem
-                  onClick={() => {
-                    handleMenuClose();
-                    navigate("/settings");
-                  }}
-                >
-                  Settings
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
-    </div>
+                Settings
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
+          </>
+        )}
+        {isLoading && <CircularProgress color="inherit" size={24} />}
+      </Toolbar>
+    </AppBar>
   );
 };
 

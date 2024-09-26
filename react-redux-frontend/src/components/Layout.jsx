@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 const Layout = () => {
   return (
     <Box sx={{ display: "flex" }}>
+      <Navigation />
       <Sidebar />
       <Container sx={{ flexGrow: 1, padding: 3 }}>
         <Box sx={{ my: 4 }}>

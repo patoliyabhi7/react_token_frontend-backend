@@ -95,6 +95,16 @@ function LoginForm() {
       >
         Forgot Password?
       </Button>
+      <Typography variant="body2" sx={{ mt: 2 }}>
+        Don't have an account?{" "}
+        <Button
+          color="primary"
+          variant="text"
+          onClick={() => navigate("/signup")}
+        >
+          Signup
+        </Button>
+      </Typography>
     </Box>
   );
 }

@@ -1,17 +1,32 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import Layout from "./components/Layout";
 import AppRoutes from "./routes";
 import "./App.css";
 import Navigation from "./components/Navigation";
-import { AuthProvider } from "./utils/AuthContext";
+import { AuthProvider, useAuth } from "./utils/AuthContext";
+import { Box, CircularProgress } from "@mui/material";
+
+const LoadingSpinner = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
+    <CircularProgress />
+  </Box>
+);
+
+const AppContent = () => {
+  const { isLoading } = useAuth();
+
+  return (
+    <>
+      {isLoading ? <LoadingSpinner /> : <AppRoutes />}
+    </>
+  );
+};
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Navigation />
-        <AppRoutes />
+        <AppContent />
       </Router>
     </AuthProvider>
   );

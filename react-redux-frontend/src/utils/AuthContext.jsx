@@ -7,25 +7,33 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if the user is authenticated by checking the presence of a token
-    const token = localStorage.getItem("jwt");
-    setIsAuthenticated(!!token);
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem("jwt");
+      const authState = localStorage.getItem("isAuthenticated");
+      setIsAuthenticated(authState === "true");
+      setIsLoading(false);
+    };
+
+    checkAuthStatus();
   }, []);
 
   const login = (token) => {
     localStorage.setItem("jwt", token);
+    localStorage.setItem("isAuthenticated", "true");
     setIsAuthenticated(true);
   };
 
   const logout = () => {
     localStorage.removeItem("jwt");
+    localStorage.setItem("isAuthenticated", "false");
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -197,6 +197,12 @@ const SignupForm = () => {
             Signup successful!
           </Alert>
         )}
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Already have an account?{" "}
+          <Button color="primary" variant="text" onClick={() => navigate("/")}>
+            Login
+          </Button>
+        </Typography>
       </Box>
     </>
   );
