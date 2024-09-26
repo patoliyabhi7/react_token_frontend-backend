@@ -4,13 +4,16 @@ import Layout from "./components/Layout";
 import AppRoutes from "./routes";
 import "./App.css";
 import Navigation from "./components/Navigation";
+import { AuthProvider } from "./utils/AuthContext";
 
 function App() {
   return (
-    <Router>
-      <Navigation />
-      <AppRoutes />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Navigation />
+        <AppRoutes />
+      </Router>
+    </AuthProvider>
   );
 }
 

@@ -9,17 +9,29 @@ import {
   Button,
   TextField,
   Alert,
+  Skeleton,
+  CircularProgress,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useGetCurrentUserQuery, useUpdatePasswordMutation } from "../apiService";
+import {
+  useGetCurrentUserQuery,
+  useUpdatePasswordMutation,
+} from "../apiService";
 
 function Profile() {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const { data: user , error: userError } = useGetCurrentUserQuery();
-  const [updatePassword, { data, isLoading, error }] = useUpdatePasswordMutation();
+  const {
+    data: user,
+    error: userError,
+    isLoading: isUserLoading,
+  } = useGetCurrentUserQuery();
+  const [
+    updatePassword,
+    { isLoading: isUpdatingPassword, error: updateError },
+  ] = useUpdatePasswordMutation();
   const navigate = useNavigate();
 
   const {
@@ -31,28 +43,17 @@ function Profile() {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    if (data) {
-      if (data.status === "success") {
-        toast.success("Password updated successfully.", {
-          position: "bottom-right",
-        });
-        setErrorMessage("");
-        setShowPasswordForm(false);
-        reset();
-      } else {
-        setErrorMessage("Failed to update password.");
-      }
-    } else if (error) {
-      const errorMessage = error?.data?.message || "An unexpected error occurred";
+    if (updateError) {
+      const errorMessage =
+        updateError?.data?.message || "An unexpected error occurred";
       setErrorMessage(errorMessage);
     }
-  }, [data, error, reset]);
+  }, [updateError]);
 
   useEffect(() => {
     if (userError && userError.status === 401) {
-      // If the user is unauthorized, redirect to login
-      localStorage.removeItem('jwt');
-      navigate('/');
+      localStorage.removeItem("jwt");
+      navigate("/");
     }
   }, [userError, navigate]);
 
@@ -61,7 +62,6 @@ function Profile() {
   const handleEditProfile = () => {
     // navigate("/edit-profile");
   };
-
   const handleChangePassword = () => {
     setShowPasswordForm(!showPasswordForm);
     if (!showPasswordForm) {
@@ -71,17 +71,69 @@ function Profile() {
     }
   };
 
-  const onSubmit = (formData) => {
+  const onSubmit = async (formData) => {
     if (
       formData.currentPassword === formData.password &&
       formData.password === formData.confirmPassword
     ) {
-      setErrorMessage("New password cannot be the same as the current password");
+      setErrorMessage(
+        "New password cannot be the same as the current password"
+      );
       return;
     }
-    updatePassword(formData);
+    try {
+      await updatePassword(formData).unwrap();
+      toast.success("Password updated successfully.", {
+        position: "bottom-right",
+      });
+      setErrorMessage("");
+      setShowPasswordForm(false);
+      reset();
+    } catch (err) {
+      const errorMessage = err?.data?.message || "An unexpected error occurred";
+      setErrorMessage(errorMessage);
+    }
   };
 
+  const renderSkeletonLoader = () => (
+    <Box sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
+      <Card sx={{ maxWidth: 600, width: "100%", p: 3, boxShadow: 3 }}>
+        <CardContent>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <Skeleton
+              variant="circular"
+              width={80}
+              height={80}
+              sx={{ mr: 3 }}
+            />
+            <Skeleton variant="text" width={200} height={40} />
+          </Box>
+          <Grid container spacing={2}>
+            {[1, 2, 3, 4].map((item) => (
+              <Grid item xs={12} sm={6} key={item}>
+                <Skeleton variant="text" width="80%" />
+                <Skeleton variant="text" width="60%" />
+              </Grid>
+            ))}
+          </Grid>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+
+  if (isUserLoading) {
+    return renderSkeletonLoader();
+  }
+
+  if (userError) {
+    return (
+      <Box sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
+        <Alert severity="error">
+          Error loading user data. Please try again later.
+        </Alert>
+      </Box>
+    );
+  }
   return (
     <>
       <Box sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
@@ -93,7 +145,9 @@ function Profile() {
                 {user?.user?.name?.charAt(0)}
               </Avatar>
               <Typography variant="h4" component="div">
-                {user ? `Welcome, ${user.user.name}` : "Welcome to Your Profile"}
+                {user
+                  ? `Welcome, ${user.user.name}`
+                  : "Welcome to Your Profile"}
               </Typography>
             </Box>
             {user ? (
@@ -125,7 +179,9 @@ function Profile() {
               </Grid>
             ) : (
               <Typography variant="h6" color="error">
-                {userError ? "Error fetching user data" : "No user data available."}
+                {userError
+                  ? "Error fetching user data"
+                  : "No user data available."}
               </Typography>
             )}
             <Box
@@ -217,9 +273,13 @@ function Profile() {
               variant="contained"
               color="primary"
               sx={{ mt: 2 }}
-              disabled={isLoading}
+              disabled={isUpdatingPassword}
             >
-              {isLoading ? "Updating..." : "Update Password"}
+              {isUpdatingPassword ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Update Password"
+              )}
             </Button>
           </Box>
         </Box>

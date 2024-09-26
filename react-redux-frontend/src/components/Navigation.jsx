@@ -10,11 +10,13 @@ import {
   MenuItem,
   Divider,
 } from "@mui/material";
+import { useAuth } from "./../utils/AuthContext";
 
 const Navigation = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem("jwt");
+  // const isAuthenticated = !!localStorage.getItem("jwt");
+  const { isAuthenticated, logout } = useAuth();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -25,7 +27,7 @@ const Navigation = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("jwt");
+    logout();
     handleMenuClose();
     navigate("/");
   };

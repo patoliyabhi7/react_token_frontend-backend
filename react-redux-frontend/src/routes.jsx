@@ -12,12 +12,14 @@ import Layout from "./components/Layout";
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<LoginForm />} />
-      <Route path="/signup" element={<SignupForm />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route element={<ProtectedRoute authenticationRequired={false} />}>
+        <Route path="/" element={<LoginForm />} />
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+      </Route>
       
-      <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRoute authenticationRequired={true} />}>
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />

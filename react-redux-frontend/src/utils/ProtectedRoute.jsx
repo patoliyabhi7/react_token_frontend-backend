@@ -1,10 +1,16 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from './AuthContext'; // Make sure to import useAuth
 
-const ProtectedRoute = () => {
-  const isAuthenticated = !!localStorage.getItem('jwt');
+const ProtectedRoute = ({ authenticationRequired = true }) => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
+  if (authenticationRequired) {
+    return isAuthenticated ? <Outlet /> : <Navigate to="/" state={{ from: location }} replace />;
+  } else {
+    return isAuthenticated ? <Navigate to="/home" replace /> : <Outlet />;
+  }
 };
 
 export default ProtectedRoute;

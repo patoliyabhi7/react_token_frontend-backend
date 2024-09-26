@@ -1,8 +1,10 @@
+// loginform.jsx
 import React, { useEffect, useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography, Alert } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useLoginMutation } from "./../apiService";
+import { useAuth } from "./../utils/AuthContext";
 
 function LoginForm() {
   const {
@@ -12,85 +14,88 @@ function LoginForm() {
   } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
-  const [login, { data, isLoading, error }] = useLoginMutation();
+  const location = useLocation();
+  const [loginMutation, { data, isLoading, error }] = useLoginMutation();
+  const { login: authLogin } = useAuth(); // Rename login to authLogin
 
-  const onSubmit = async (datas) => {
-    login(datas);
-  };
-  useEffect(() => {
-    if (data !== undefined) {
-      localStorage.setItem('jwt', data.token)
-      if (data.statusCode === 200) {
-        navigate("/profile");
-      } else {
-        // else part here
+  const onSubmit = async (formData) => {
+    try {
+      const result = await loginMutation(formData).unwrap();
+      if (result.token) {
+        authLogin(result.token);
+        const from = location.state?.from?.pathname || "/home";
+        navigate(from, { replace: true });
       }
-    } else if (error) {
+    } catch (err) {
+      setErrorMessage(err.data?.message || "An unexpected error occurred");
+    }
+  };
+
+  useEffect(() => {
+    if (error) {
       const errorMessage =
         error?.data?.message || "An unexpected error occurred";
       setErrorMessage(errorMessage);
     }
-  }, [data, error]);
+  }, [error]);
 
   return (
-    <>
-      <Box
-        component="form"
-        onSubmit={handleSubmit(onSubmit)}
-        sx={{
-          mt: 3,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          maxWidth: 400,
-          mx: "auto",
-          p: 3,
-          boxShadow: 3,
-        }}
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{
+        mt: 3,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        maxWidth: 400,
+        mx: "auto",
+        p: 3,
+        boxShadow: 3,
+      }}
+    >
+      <Typography
+        variant="overline"
+        gutterBottom
+        sx={{ display: "block", fontSize: "1.5rem", alignSelf: "center" }}
       >
-        <Typography
-          variant="overline"
-          gutterBottom
-          sx={{ display: "block", fontSize: "1.5rem", alignSelf: "center" }}
-        >
-          login
-        </Typography>
-        {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-        <TextField
-          fullWidth
-          label="Email"
-          margin="normal"
-          {...register("email", { required: "Email is required" })}
-          error={!!errors.email}
-          helperText={errors.email ? errors.email.message : ""}
-        />
-        <TextField
-          fullWidth
-          label="Password"
-          type="password"
-          margin="normal"
-          {...register("password", { required: "Password is required" })}
-          error={!!errors.password}
-          helperText={errors.password ? errors.password.message : ""}
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={isLoading}
-          sx={{ mt: 2, alignSelf: "flex-start" }}
-        >
-          {isLoading ? "Loading..." : "Login"}
-        </Button>
-        <Button
-          color="secondary"
-          sx={{ mt: 1 }}
-          onClick={() => navigate("/forgot-password")}
-        >
-          Forgot Password?
-        </Button>
-      </Box>
-    </>
+        Login
+      </Typography>
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+      <TextField
+        fullWidth
+        label="Email"
+        margin="normal"
+        {...register("email", { required: "Email is required" })}
+        error={!!errors.email}
+        helperText={errors.email ? errors.email.message : ""}
+      />
+      <TextField
+        fullWidth
+        label="Password"
+        type="password"
+        margin="normal"
+        {...register("password", { required: "Password is required" })}
+        error={!!errors.password}
+        helperText={errors.password ? errors.password.message : ""}
+      />
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={isLoading}
+        sx={{ mt: 2, alignSelf: "flex-start" }}
+      >
+        {isLoading ? "Loading..." : "Login"}
+      </Button>
+      <Button
+        color="secondary"
+        sx={{ mt: 1 }}
+        onClick={() => navigate("/forgot-password")}
+      >
+        Forgot Password?
+      </Button>
+    </Box>
   );
 }
 
