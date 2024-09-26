@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { forgotPassword } from "../apiServices";
-import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography, Alert } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useForgotPasswordMutation } from "../apiService";
 
 function ForgotPassword() {
   const {
@@ -14,13 +13,12 @@ function ForgotPassword() {
     reset,
   } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
+  const [forgotPassword, { isLoading, isError, error }] =
+    useForgotPasswordMutation();
 
   const onSubmit = async (data) => {
     try {
-      setIsLoading(true); // Disable the button
-      const result = await dispatch(forgotPassword(data));
+      const result = await forgotPassword(data).unwrap();
       if (result.status === "success") {
         toast.success("Password Reset Link Sent Please check your mail", {
           position: "bottom-right",
@@ -29,13 +27,10 @@ function ForgotPassword() {
         reset();
       }
     } catch (error) {
-      console.error("An error occurred:", error.statusMessage);
-      const errorMessage = error.statusMessage
-        ? error.statusMessage
+      const errorMessage = error.data.message
+        ? error.data.message
         : "An unexpected error occurred";
       setErrorMessage(errorMessage);
-    } finally {
-      setIsLoading(false); // Re-enable the button
     }
   };
 
@@ -55,9 +50,13 @@ function ForgotPassword() {
       }}
     >
       <ToastContainer />
-      <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem', alignSelf:'center'}}>
-                forgot password
-            </Typography>
+      <Typography
+        variant="overline"
+        gutterBottom
+        sx={{ display: "block", fontSize: "1.5rem", alignSelf: "center" }}
+      >
+        forgot password
+      </Typography>
 
       <Typography variant="body1" gutterBottom>
         Enter your email and we'll send you a link to reset your password
@@ -76,7 +75,7 @@ function ForgotPassword() {
         variant="contained"
         color="primary"
         sx={{ mt: 2, mb: 2 }}
-        disabled={isLoading} // Disable the button when loading
+        disabled={isLoading} 
       >
         {isLoading ? "Sending..." : "Send Reset Link"}
       </Button>

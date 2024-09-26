@@ -147,11 +147,11 @@ exports.register = catchAsync(async (req, res, next) => {
         })
         if (!newUser) {
             return res.status(400).json({
-                statusMessage: 'Error while registering user',
+                message: 'Error while registering user',
                 statusCode: 400
             })
         }
-        createSendToken(newUser, 201, res);
+        createSendToken(newUser, 200, res);
         // res.status(200).json({
         //     statusMessage: 'Signup successful',
         //     statusCode: 200,
@@ -161,6 +161,11 @@ exports.register = catchAsync(async (req, res, next) => {
         // })
     } catch (error) {
         console.log(error)
+        res.status(400).json({
+            status: 'Failed',
+            statusCode: 400,
+            message: error.message
+        })
     }
 })
 
@@ -171,7 +176,7 @@ exports.login = catchAsync(async (req, res, next) => {
             return res.status(400).json({
                 status: 'Failed',
                 statusCode: 400,
-                statusMessage: 'Please enter email and password'
+                MIDIMessageEvent: 'Please enter email and password'
             })
         }
         const user = await User.findOne({ email }).select('+password');
@@ -180,7 +185,7 @@ exports.login = catchAsync(async (req, res, next) => {
             return res.status(400).json({
                 status: 'Login failed',
                 statusCode: 400,
-                statusMessage: 'Incorrect email or password'
+                message: 'Incorrect email or password'
             })
         }
 
@@ -190,7 +195,7 @@ exports.login = catchAsync(async (req, res, next) => {
         res.status(400).json({
             statusCode: 400,
             status: 'Failed',
-            statusMessage: error.message
+            message: error.message
         })
     }
 })
@@ -203,6 +208,7 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
         }
         res.status(200).json({ user });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Server error' });
     }
 })
@@ -215,12 +221,11 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
 exports.forgotPassword = catchAsync(async (req, res, next) => {
     try {
         const { email } = req.body.email;
-        console.log(email)
         if (!email) {
             return res.status(400).json({
                 status: 'Failed',
                 statusCode: 400,
-                statusMessage: 'Please enter your email'
+                message: 'Please enter your email'
             })
         }
         const user = await User.findOne({ email: email });
@@ -228,7 +233,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
             return res.status(404).json({
                 status: 'Failed',
                 statusCode: 404,
-                statusMessage: 'No user found with this email'
+                message: 'No user found with this email'
             })
         }
 
@@ -262,14 +267,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
             res.status(200).json({
                 status: 'success',
                 statusCode: 200,
-                statusMessage: 'Password reset link sent to your email'
+                message: 'Password reset link sent to your email'
             })
         } catch (error) {
             res.clearCookie('otp');
             res.status(400).json({
                 statusCode: 400,
                 status: 'Error while sending password reset link',
-                statusMessage: error.message
+                message: error.message
             })
 
         }
@@ -277,7 +282,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         res.status(400).json({
             statusCode: 400,
             status: 'Error while resetting password',
-            statusMessage: error.message
+            message: error.message
         })
     }
 })
@@ -292,25 +297,23 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
             return res.status(400).json({
                 status: 'Failed',
                 statusCode: 400,
-                statusMessage: 'User not found'
+                message: 'User not found'
             });
         }
         if (user.passwordResetToken !== passResetToken) {
             return res.status(400).json({
                 status: 'Failed',
                 statusCode: 400,
-                statusMessage: 'Token is invalid/expired'
+                message: 'Token is invalid/expired'
             });
         }
-
         if (password !== confirmPassword) {
             return res.status(400).json({
                 status: 'Failed',
                 statusCode: 400,
-                statusMessage: 'Passwords do not match'
+                message: 'Passwords do not match'
             });
         }
-
         user.password = password;
         user.confirmPassword = confirmPassword;
         user.passwordResetToken = undefined;
@@ -318,27 +321,27 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
         return res.status(200).json({
             status: 'success',
             statusCode: 200,
-            statusMessage: 'Password reset successfull'
+            message: 'Password reset successfull'
         });
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({
                 status: 'Failed',
                 statusCode: 401,
-                statusMessage: 'Token has expired'
+                message: 'Token has expired'
             });
         }
         else if (error.name === 'JsonWebTokenError') {
             return res.status(400).json({
                 status: 'Failed',
                 statusCode: 400,
-                statusMessage: 'Invalid token'
+                message: 'Invalid token'
             });
         }
         res.status(400).json({
             status: 'Error',
             statusCode: 400,
-            statusMessage: error.message
+            message: error.message
         });
     }
 });

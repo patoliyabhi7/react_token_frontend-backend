@@ -1,25 +1,20 @@
 import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { AppBar, Toolbar, Button, Box, Avatar, Menu, MenuItem, Divider } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "./../features/users/userSlice";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Box,
+  Avatar,
+  Menu,
+  MenuItem,
+  Divider,
+} from "@mui/material";
 
-const drawerWidth = 240;
-
-function Navigation() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-  const user = useSelector((state) => state.user.user); 
+const Navigation = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleLogout = () => {
-    setAnchorEl(null);
-    localStorage.removeItem("jwt");
-    dispatch(logout());
-    navigate("/");
-  };
+  const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem("jwt");
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -29,23 +24,25 @@ function Navigation() {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("jwt");
+    handleMenuClose();
+    navigate("/");
+  };
+
   const isActive = (path) => {
-    return location.pathname === path;
+    return window.location.pathname === path;
   };
 
   const activeStyle = {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     fontWeight: "bold",
   };
-
   return (
     <div>
-       <AppBar
-        position="fixed"
-        // sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
-      >
+      <AppBar position="fixed">
         <Toolbar>
-          {!isAuthenticated && (
+          {!isAuthenticated ? (
             <>
               <Button
                 color="inherit"
@@ -64,24 +61,28 @@ function Navigation() {
                 Signup
               </Button>
             </>
-          )}
-          {isAuthenticated && (
+          ) : (
             <>
-             
               <Box sx={{ flexGrow: 1 }} />
-              <Avatar
-                sx={{ cursor: 'pointer' }}
-                onClick={handleMenuOpen}
-              >
-                {user?.name?.charAt(0)} {/* Display user's initial */}
+              <Avatar sx={{ cursor: "pointer" }} onClick={handleMenuOpen}>
+                {/* Assuming you have a user object with a name */}
+                {/* Replace 'U' with user?.name?.charAt(0) if you have user data */}
+                {/* {user?.name?.charAt(0)} */}
               </Avatar>
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
               >
-                <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>Settings</MenuItem>
-                <Divider/>
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate("/settings");
+                  }}
+                >
+                  Settings
+                </MenuItem>
+                <Divider />
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>
@@ -90,6 +91,6 @@ function Navigation() {
       </AppBar>
     </div>
   );
-}
+};
 
 export default Navigation;

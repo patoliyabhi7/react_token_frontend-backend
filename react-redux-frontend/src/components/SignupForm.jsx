@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import {
   TextField,
@@ -10,44 +10,48 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
+  Alert,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { signup } from "../apiServices";
+import { useSignupMutation } from "./../apiService";
 
 const SignupForm = () => {
+  const [errorState, setErrorState] = React.useState(" ");
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
   } = useForm();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
-
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-
-  if (isAuthenticated) {
-    navigate("/home");
-  }
+  const [signup, { isLoading, isSuccess, isError, error }] =
+    useSignupMutation();
 
   // Watch the password field to compare it with confirmPassword
   const password = watch("password");
 
   const onSubmit = async (data) => {
     try {
-      setIsLoading(true);
-      const result = await dispatch(signup(data));
-      if (!result.error) {
-        navigate("/home"); // Navigate to the home page
+      const result = await signup(data).unwrap();
+      if (result.status === "success") {
+        navigate("/");
       }
     } catch (error) {
       console.error("Signup failed", error);
-    }
-    finally {
-      setIsLoading(false);
+      let errorMessage = "An unexpected error occurred";
+      if (error?.data?.message) {
+        if (error.data.message.includes("email")) {
+          errorMessage =
+            "This email is already registered. Please use a different email.";
+        } else if (error.data.message.includes("username")) {
+          errorMessage =
+            "This username is already taken. Please choose a different username.";
+        } else {
+          errorMessage = error.data.message;
+        }
+      }
+      setErrorState(errorMessage);
     }
   };
 
@@ -67,8 +71,12 @@ const SignupForm = () => {
           boxShadow: 3,
         }}
       >
-        <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem', alignSelf:'center'}}>
-               signup
+        <Typography
+          variant="overline"
+          gutterBottom
+          sx={{ display: "block", fontSize: "1.5rem", alignSelf: "center" }}
+        >
+          Signup
         </Typography>
         <TextField
           fullWidth
@@ -178,8 +186,17 @@ const SignupForm = () => {
           disabled={isLoading}
         >
           {isLoading ? "Loading..." : "Signup"}
-          Signup
         </Button>
+        {isError && errorState && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {errorState}
+          </Alert>
+        )}
+        {isSuccess && (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            Signup successful!
+          </Alert>
+        )}
       </Box>
     </>
   );

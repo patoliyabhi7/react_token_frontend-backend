@@ -1,18 +1,17 @@
 import React from "react";
 import { Box, Container } from "@mui/material";
+import { Outlet } from "react-router-dom";
 import Navigation from "./Navigation";
 import Sidebar from "./Sidebar";
-import { useSelector } from "react-redux";
 
-const Layout = ({ children }) => {
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
-
+const Layout = () => {
   return (
     <Box sx={{ display: "flex" }}>
-      <Navigation />
-      {isAuthenticated && <Sidebar />}
+      <Sidebar />
       <Container sx={{ flexGrow: 1, padding: 3 }}>
-        <Box sx={{ my: 4 }}>{children}</Box>
+        <Box sx={{ my: 4 }}>
+          <Outlet />
+        </Box>
       </Container>
     </Box>
   );

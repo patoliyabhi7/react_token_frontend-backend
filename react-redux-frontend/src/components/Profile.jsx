@@ -1,5 +1,4 @@
-import React, { useState, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -13,16 +12,15 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { updatePassword } from "../apiServices";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useGetCurrentUserQuery, useUpdatePasswordMutation } from "../apiService";
 
 function Profile() {
-  const user = useSelector((state) => state.user.user);
-
-  const navigate = useNavigate();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data: user , error: userError } = useGetCurrentUserQuery();
+  const [updatePassword, { data, isLoading, error }] = useUpdatePasswordMutation();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -31,33 +29,32 @@ function Profile() {
     reset,
   } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
-  const dispatch = useDispatch();
 
-  const onSubmit = async (data) => {
-    try {
-      setIsLoading(true);
-      if(data.currentPassword === data.password && data.password === data.confirmPassword) {
-        setErrorMessage("New password cannot be the same as the current password");
-        setIsLoading(false);
-        return;
-      }
-      const result = await dispatch(updatePassword(data));
-      if (result.status === "success") {
+  useEffect(() => {
+    if (data) {
+      if (data.status === "success") {
         toast.success("Password updated successfully.", {
           position: "bottom-right",
         });
         setErrorMessage("");
         setShowPasswordForm(false);
         reset();
+      } else {
+        setErrorMessage("Failed to update password.");
       }
-    } catch (error) {
-      const errorMessage = error ? error : "An unexpected error occurred";
+    } else if (error) {
+      const errorMessage = error?.data?.message || "An unexpected error occurred";
       setErrorMessage(errorMessage);
     }
-    finally {
-      setIsLoading(false);
+  }, [data, error, reset]);
+
+  useEffect(() => {
+    if (userError && userError.status === 401) {
+      // If the user is unauthorized, redirect to login
+      localStorage.removeItem('jwt');
+      navigate('/');
     }
-  };
+  }, [userError, navigate]);
 
   const passwordFormRef = useRef(null);
 
@@ -74,6 +71,17 @@ function Profile() {
     }
   };
 
+  const onSubmit = (formData) => {
+    if (
+      formData.currentPassword === formData.password &&
+      formData.password === formData.confirmPassword
+    ) {
+      setErrorMessage("New password cannot be the same as the current password");
+      return;
+    }
+    updatePassword(formData);
+  };
+
   return (
     <>
       <Box sx={{ mt: 5, display: "flex", justifyContent: "center" }}>
@@ -82,10 +90,10 @@ function Profile() {
           <CardContent>
             <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
               <Avatar sx={{ width: 80, height: 80, mr: 3, bgcolor: "#1976d2" }}>
-                {user?.name?.charAt(0)}
+                {user?.user?.name?.charAt(0)}
               </Avatar>
               <Typography variant="h4" component="div">
-                {user ? `Welcome, ${user.name}` : "Welcome to Your Profile"}
+                {user ? `Welcome, ${user.user.name}` : "Welcome to Your Profile"}
               </Typography>
             </Box>
             {user ? (
@@ -94,30 +102,30 @@ function Profile() {
                   <Typography variant="subtitle1" color="textSecondary">
                     Name:
                   </Typography>
-                  <Typography variant="body1">{user.name}</Typography>
+                  <Typography variant="body1">{user.user.name}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle1" color="textSecondary">
                     Email:
                   </Typography>
-                  <Typography variant="body1">{user.email}</Typography>
+                  <Typography variant="body1">{user.user.email}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle1" color="textSecondary">
                     Username:
                   </Typography>
-                  <Typography variant="body1">{user.username}</Typography>
+                  <Typography variant="body1">{user.user.username}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle1" color="textSecondary">
                     Gender:
                   </Typography>
-                  <Typography variant="body1">{user.gender}</Typography>
+                  <Typography variant="body1">{user.user.gender}</Typography>
                 </Grid>
               </Grid>
             ) : (
               <Typography variant="h6" color="error">
-                Error fetching user data or No user data available.
+                {userError ? "Error fetching user data" : "No user data available."}
               </Typography>
             )}
             <Box
@@ -135,7 +143,7 @@ function Profile() {
                 color="secondary"
                 onClick={handleChangePassword}
               >
-               Update Password
+                Update Password
               </Button>
             </Box>
           </CardContent>
@@ -151,8 +159,12 @@ function Profile() {
             onSubmit={handleSubmit(onSubmit)}
             sx={{ maxWidth: 600, width: "100%", p: 3, boxShadow: 3 }}
           >
-            <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem', alignSelf:'center'}}>
-                Update password
+            <Typography
+              variant="overline"
+              gutterBottom
+              sx={{ display: "block", fontSize: "1.5rem", alignSelf: "center" }}
+            >
+              Update password
             </Typography>
             {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
             <TextField

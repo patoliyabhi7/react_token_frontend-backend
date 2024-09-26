@@ -1,52 +1,45 @@
-import React, { useState } from "react";
-import { resetPassword } from "../apiServices";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography, Alert } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useParams } from "react-router-dom";
+import { useResetPasswordMutation } from "../apiService";
+import { ContactlessOutlined } from "@mui/icons-material";
 
 function ResetPassword() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
     watch,
   } = useForm();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
-  const {token} = useParams();
+  const { token } = useParams();
   const navigate = useNavigate();
+  const [resetPassword, { data, isLoading, error }] =
+    useResetPasswordMutation();
 
   const password = watch("password");
 
-  const onSubmit = async (data) => {
-    try {
-      setIsLoading(true); 
-      const result = await dispatch(resetPassword(token, data));
-      if (result.status === "success") {
-        toast.success("Password Reset Success", {
-          position: "bottom-right",
-        });
-        navigate("/");
-        setErrorMessage("");
-        reset();
-      }
-    } catch (error) {
-      console.error("An error occurred:", error.statusMessage);
-      const errorMessage = error.statusMessage
-        ? error.statusMessage
-        : "An unexpected error occurred";
-      setErrorMessage(errorMessage);
-    } finally {
-      setIsLoading(false); // Re-enable the button
-    }
+  const onSubmit = async (datas) => {
+    resetPassword({ data: datas, token: token });
   };
 
-  
+  useEffect(() => {
+    if (data !== undefined) {
+      if (data.statusCode === 200) {
+        navigate("/");
+      } else {
+        setErrorMessage(data.message);
+      }
+    } else if (error) {
+      const errorMessage =
+        error?.data?.message || "An unexpected error occurred";
+      setErrorMessage(errorMessage);
+    }
+  }, [data, error]);
+
   return (
     <Box
       component="form"
@@ -63,7 +56,11 @@ function ResetPassword() {
       }}
     >
       <ToastContainer />
-      <Typography variant="overline" gutterBottom sx={{ display: 'block', fontSize: '1.5rem' }}>
+      <Typography
+        variant="overline"
+        gutterBottom
+        sx={{ display: "block", fontSize: "1.5rem" }}
+      >
         reset password
       </Typography>
       <Typography variant="body1" gutterBottom>
