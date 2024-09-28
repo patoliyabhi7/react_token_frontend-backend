@@ -5,9 +5,17 @@ import "./App.css";
 import Navigation from "./components/Navigation";
 import { AuthProvider, useAuth } from "./utils/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
+import ErrorBoundary from "./ErrorBoundary";
 
 const LoadingSpinner = () => (
-  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "calc(100vh - 64px)",
+    }}
+  >
     <CircularProgress />
   </Box>
 );
@@ -15,18 +23,16 @@ const LoadingSpinner = () => (
 const AppContent = () => {
   const { isLoading } = useAuth();
 
-  return (
-    <>
-      {isLoading ? <LoadingSpinner /> : <AppRoutes />}
-    </>
-  );
+  return <>{isLoading ? <LoadingSpinner /> : <AppRoutes />}</>;
 };
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <AppContent />
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
       </Router>
     </AuthProvider>
   );
